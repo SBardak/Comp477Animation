@@ -5,8 +5,11 @@
 #ifndef MESH_H
 #define MESH_H
 
+
 #include "./glm.h"
 #include "./skeleton.h"
+
+
 class DefMesh
 {
 public:

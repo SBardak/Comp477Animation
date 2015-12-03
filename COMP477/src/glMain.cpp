@@ -1,6 +1,5 @@
 #pragma managed(push, off)
 #include <btBulletDynamicsCommon.h>
-#include <BulletCollision\Gimpact\btGImpactShape.h>
 #pragma managed(pop)
 
 #ifdef __APPLE__
@@ -17,17 +16,17 @@
 #include <cmath>
 #include <cstring>
 #include "skeleton.h"
-#include "defMesh.h"
+//#include "defMesh.h"
 
-#include "animator.h"
+#include "snowGlobe.h"
 using namespace std;
 
 
-//Create animator
-Animator myAnim;
+//Create Globe
+SnowGlobe globe;
 
 //Create Mesh
-DefMesh myDefMesh;
+//DefMesh myDefMesh;
 
 //Switches
 int meshModel=0;
@@ -42,7 +41,7 @@ double _right = 0.0;
 double _bottom = 0.0;
 double _top = 0.0;
 double _zNear = 0.1;
-double _zFar = 50.0;
+double _zFar = 1000.0;
 double fovy = 45.0;
 double prev_z = 0;
 
@@ -72,6 +71,7 @@ btBroadphaseInterface* broadphase;
 btConstraintSolver* solver;
 std::vector<btRigidBody*> bodies;
 
+
 btRigidBody* addSphere(float rad, float x, float y, float z, float mass)
 {
 	btTransform t;
@@ -88,11 +88,18 @@ btRigidBody* addSphere(float rad, float x, float y, float z, float mass)
 	//http://stackoverflow.com/questions/8289653/bouncing-ball-in-bullet
 	info.m_friction = 0.5;
 	info.m_angularDamping = 0.2;
+	info.m_linearDamping = 0.5;
+	info.m_restitution = 0;
 	//
 
 
 	btRigidBody* body = new btRigidBody(info);
-	world->addRigidBody(body);
+	int all = collisiontypes::COL_GLOBE | collisiontypes::COL_PLANE;
+	world->addRigidBody(body, all, all);
+
+	body->setCcdMotionThreshold(5);
+	body->setCcdSweptSphereRadius(10);
+
 	bodies.push_back(body);
 	return body;
 }
@@ -267,10 +274,10 @@ void renderPlane(btRigidBody* plane)
 	glPushMatrix();
 	glMultMatrixf(mat);     //translation,rotation
 	glBegin(GL_QUADS);
-	glVertex3f(-1000, 0, 1000);
-	glVertex3f(-1000, 0, -1000);
-	glVertex3f(1000, 0, -1000);
-	glVertex3f(1000, 0, 1000);
+		glVertex3f(-1000, 0, 1000);
+		glVertex3f(-1000, 0, -1000);
+		glVertex3f(1000, 0, -1000);
+		glVertex3f(1000, 0, 1000);
 	glEnd();
 	glPopMatrix();
 }
@@ -410,9 +417,54 @@ void pos(double *px, double *py, double *pz, const int x, const int y,
 	*pz = _zNear;
 }
 
+btScalar mMaxSpeed = 30;
+void myTickCallback(btDynamicsWorld *world, btScalar timeStep, btRigidBody *body) {
+	// mShipBody is the spaceship's btRigidBody
+	btVector3 velocity = body->getLinearVelocity();
+	btScalar speed = velocity.length();
+	if (speed > mMaxSpeed) {
+		velocity *= mMaxSpeed / speed;
+		body->setLinearVelocity(velocity);
+	}
+}
+
 void display()
 {
-	world->stepSimulation(1 / 60.0);
+	float one = 1.0f / 60,
+		two = 5,
+		three = 1.0f / 300;
+	world->stepSimulation(one, two, three);
+	//world->stepSimulation(one);
+	int numManifolds = world->getDispatcher()->getNumManifolds();
+
+	for each (btRigidBody* bod in bodies)
+	{
+		myTickCallback(world, three, bod);
+	}
+
+	for (int i = 0; i < numManifolds; i++)
+	{
+		btPersistentManifold* contactManifold = world->getDispatcher()->getManifoldByIndexInternal(i);
+		//btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
+		//btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
+
+		int numContacts = contactManifold->getNumContacts();
+		for (int j = 0; j < numContacts; j++)
+		{
+			btManifoldPoint& pt = contactManifold->getContactPoint(j);
+			if (pt.getDistance() < 0.f)
+			{
+				if (pt.m_appliedImpulse > 10)
+					std::cout << pt.m_appliedImpulse << std::endl;
+				const btVector3& ptA = pt.getPositionWorldOnA();
+				const btVector3& ptB = pt.getPositionWorldOnB();
+				const btVector3& normalOnB = pt.m_normalWorldOnB;
+			}
+		}
+	}
+
+
+
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
@@ -430,16 +482,16 @@ void display()
 			renderPlane(bodies[i]);
 		else if (bodies[i]->getCollisionShape()->getShapeType() == SPHERE_SHAPE_PROXYTYPE)
 			renderSphere(bodies[i]);
-		else if (bodies[i]->getCollisionShape()->getShapeType() == CYLINDER_SHAPE_PROXYTYPE)
-			renderCylinder(bodies[i]);
-		else if (bodies[i]->getCollisionShape()->getShapeType() == CONE_SHAPE_PROXYTYPE)
-			renderCone(bodies[i]);
-		else if (bodies[i]->getCollisionShape()->getShapeType() == BOX_SHAPE_PROXYTYPE)
-			renderBox(bodies[i]);
+		//else if (bodies[i]->getCollisionShape()->getShapeType() == CYLINDER_SHAPE_PROXYTYPE)
+		//	renderCylinder(bodies[i]);
+		//else if (bodies[i]->getCollisionShape()->getShapeType() == CONE_SHAPE_PROXYTYPE)
+		//	renderCone(bodies[i]);
+		//else if (bodies[i]->getCollisionShape()->getShapeType() == BOX_SHAPE_PROXYTYPE)
+		//	renderBox(bodies[i]);
 	}
+	//btCollisionWorld::ClosestRayResultCallback rayCallback(rayFromWorld, rayToWorld);
 
-	myDefMesh.glDraw(meshModel);
-
+	globe.glDraw();
 	glPopMatrix();
 	glutSwapBuffers();
 }
@@ -527,66 +579,73 @@ void mouseMoveEvent(int x, int y)
 	const int dx = x - _mouseX;
 	const int dy = y - _mouseY;
 
-	int viewport[4];
-	glGetIntegerv(GL_VIEWPORT, viewport);
-
-	if (dx == 0 && dy == 0)
-		return;
-
-	if (_mouseMiddle || (_mouseLeft && _mouseRight)) {
-		/* double s = exp((double)dy*0.01); */
-		/* glScalef(s,s,s); */
-		/* if(abs(prev_z) <= 1.0) */
-
-		glLoadIdentity();
-		glTranslatef(0, 0, dy * 0.1);
-		glMultMatrixd(_matrix);
-
-		changed = true;
-	}
-	else if (_mouseLeft) {
-		double ax, ay, az;
-		double bx, by, bz;
-		double angle;
-
-		ax = dy;
-		ay = dx;
-		az = 0.0;
-		angle = vlen(ax, ay, az) / (double)(viewport[2] + 1) * 180.0;
-
-		/* Use inverse matrix to determine local axis of rotation */
-
-		bx = _matrixI[0] * ax + _matrixI[4] * ay + _matrixI[8] * az;
-		by = _matrixI[1] * ax + _matrixI[5] * ay + _matrixI[9] * az;
-		bz = _matrixI[2] * ax + _matrixI[6] * ay + _matrixI[10] * az;
-
-		glRotatef(angle, bx, by, bz);
-
-		changed = true;
-	}
-	else if (_mouseRight) {
-		double px, py, pz;
-
-		pos(&px, &py, &pz, x, y, viewport);
-
-		glLoadIdentity();
-		glTranslatef(px - _dragPosX, py - _dragPosY, pz - _dragPosZ);
-		glMultMatrixd(_matrix);
-
-		_dragPosX = px;
-		_dragPosY = py;
-		_dragPosZ = pz;
-
-		changed = true;
-	}
+	//std::cout << dx << " : " << dy << std::endl;
+	float div = 240;//0.240/*.0*/;s
+	globe.move(dx / div, -dy / div, 0);
 
 	_mouseX = x;
 	_mouseY = y;
 
-	if (changed) {
-		getMatrix();
-		glutPostRedisplay();
-	}
+	//int viewport[4];
+	//glGetIntegerv(GL_VIEWPORT, viewport);
+
+	//if (dx == 0 && dy == 0)
+	//	return;
+
+	//if (_mouseMiddle || (_mouseLeft && _mouseRight)) {
+	//	/* double s = exp((double)dy*0.01); */
+	//	/* glScalef(s,s,s); */
+	//	/* if(abs(prev_z) <= 1.0) */
+
+	//	glLoadIdentity();
+	//	glTranslatef(0, 0, dy * 0.1);
+	//	glMultMatrixd(_matrix);
+
+	//	changed = true;
+	//}
+	//else if (_mouseLeft) {
+	//	double ax, ay, az;
+	//	double bx, by, bz;
+	//	double angle;
+
+	//	ax = dy;
+	//	ay = dx;
+	//	az = 0.0;
+	//	angle = vlen(ax, ay, az) / (double)(viewport[2] + 1) * 180.0;
+
+	//	/* Use inverse matrix to determine local axis of rotation */
+
+	//	bx = _matrixI[0] * ax + _matrixI[4] * ay + _matrixI[8] * az;
+	//	by = _matrixI[1] * ax + _matrixI[5] * ay + _matrixI[9] * az;
+	//	bz = _matrixI[2] * ax + _matrixI[6] * ay + _matrixI[10] * az;
+
+	//	glRotatef(angle, bx, by, bz);
+
+	//	changed = true;
+	//}
+	//else if (_mouseRight) {
+	//	double px, py, pz;
+
+	//	pos(&px, &py, &pz, x, y, viewport);
+
+	//	glLoadIdentity();
+	//	glTranslatef(px - _dragPosX, py - _dragPosY, pz - _dragPosZ);
+	//	glMultMatrixd(_matrix);
+
+	//	_dragPosX = px;
+	//	_dragPosY = py;
+	//	_dragPosZ = pz;
+
+	//	changed = true;
+	//}
+
+	//_mouseX = x;
+	//_mouseY = y;
+
+	//if (changed) {
+	//	getMatrix();
+	//	glutPostRedisplay();
+	//}
 }
 
 void handleKeyPress(unsigned char key, int x, int y)
@@ -595,8 +654,36 @@ void handleKeyPress(unsigned char key, int x, int y)
 	{
 		/* Frame movement */
 	case 'a':
-		addSphere(0.3, 0, 5, 0.2, 1.0);
+		addSphere(0.5, 0, 5, 0.2, 10.0);
 		break;
+	case 'h':
+		globe.toggleCollisionSphere();
+		break;
+	case 'g':
+		globe.toggleGlobe();
+		break;
+	case 'f':
+		globe.toggleCollisionPlane();
+		break;
+	//case 't':
+	//	planeBody->getMotionState()->getWorldTransform(t);
+	//	t.setRotation(btQuaternion(0.38268343236, 0, 0, 0.92387));
+	//	planeBody->setWorldTransform(t);
+	//	planeBody->getMotionState()->setWorldTransform(t);
+	//	break;
+	case '+':
+		globe.move(0, 1, 0);
+		break;
+	case '-':
+		globe.move(0, -1, 0);
+		break;
+	//case '-':
+	//	planeBody->getMotionState()->getWorldTransform(t);
+	//	t.setOrigin(t.getOrigin() - btVector3(0, 1, 0)); // add offset here
+	//	planeBody->setWorldTransform(t);
+	//	planeBody->getMotionState()->setWorldTransform(t);
+	//	planeBody->applyForce(btVector3(0, -1, 0), t.getOrigin());
+	//	break;
 	case 'q':
 		exit(0);
 	}
@@ -617,17 +704,23 @@ void init(float angle)
 	world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfig);
 	world->setGravity(btVector3(0, -10, 0));
 
-	btTransform t;
-	t.setIdentity();
-	t.setOrigin(btVector3(0, 0, 0));
-	btStaticPlaneShape* plane = new btStaticPlaneShape(btVector3(0, 1, 0), 0);
-	btMotionState* motion = new btDefaultMotionState(t);
-	btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, plane);
-	btRigidBody* body = new btRigidBody(info);
-	world->addRigidBody(body);
-	bodies.push_back(body);
+	btContactSolverInfo& info = world->getSolverInfo();
+	info.m_splitImpulse = 1; //enable split impulse feature
+	//optionally set the m_splitImpulsePenetrationThreshold (only used when m_splitImpulse  is enabled)
+	//only enable split impulse position correction when the penetration is deeper than this m_splitImpulsePenetrationThreshold, otherwise use the regular velocity/position constraint coupling (Baumgarte).
+	info.m_splitImpulsePenetrationThreshold = -0.02;
 
-	addSphere(1.0, 0, 20, 0, 1.0);
+	//btTransform t;
+	//t.setIdentity();
+	//t.setOrigin(btVector3(0, 0, 0));
+	//btStaticPlaneShape* plane = new btStaticPlaneShape(btVector3(0, 1, 0), 0);
+	//btMotionState* motion = new btDefaultMotionState(t);
+	//btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, plane);
+	//btRigidBody* body = new btRigidBody(info);
+	//world->addRigidBody(body);
+	//bodies.push_back(body);
+
+	//addSphere(1.0, 0, 20, 0, 1.0);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -640,17 +733,18 @@ void init(float angle)
 	//Light values and coordinates
 	GLfloat ambientLight[] = { 0.3f, 0.3f, 0.3f, 1.0f };
 	GLfloat diffuseLight[] = { 0.7f, 0.7f, 0.7f, 1.0f };
-	GLfloat lightPos[] = { 20.0f, 20.0f, 50.0f };
+	GLfloat lightPos[] = { 20.0f, 20.0f, 50.0f, 1.0f };
+	glEnable(GL_LIGHT0);
+
 	glEnable(GL_DEPTH_TEST);
 	glFrontFace(GL_CCW);
 	//glEnable(GL_CULL_FACE);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPolygonMode(GL_FRONT, GL_FILL);
 	// Hidden surface removal // Counterclockwise polygons face out // Do not calculate inside of jet // Enable lighting
 	glEnable(GL_LIGHTING);
 	// Set up and enable light 0
 	glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
-	glEnable(GL_LIGHT0);
 	// Enable color tracking
 	glEnable(GL_COLOR_MATERIAL);
 	// Set material properties to follow glColor values
@@ -663,12 +757,15 @@ void init(float angle)
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 
 	glShadeModel(GL_FLAT);
+
+
+
 	getMatrix(); //Init matrix
 
 	//Translate camera
 	glPushMatrix();
 	glLoadIdentity();
-	glTranslatef(0, -4, -5.0);
+	glTranslatef(0, -4, -20.0);
 	glMultMatrixd(_matrix);
 	getMatrix();
 	glPopMatrix();
@@ -680,8 +777,10 @@ void init(float angle)
 	//glMatrixMode(GL_MODELVIEW);
 	////initskybox();
 	//glEnable(GL_DEPTH_TEST);
-}
 
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
 
 int main(int argc, char **argv)
 {
@@ -703,59 +802,19 @@ int main(int argc, char **argv)
 
 	float angle = 50;
 	init(angle);
-	addCylinder(2, 5, 0, 30, 0, 1.0);
-	addCone(2, 5, 5, 30, 0, 1.0);
-	addBox(10, 2, 3, 0, 40, 0, 1.0);
-
-	/* Globe physics */
-	/* ================================================================== */
-	int *tes = (int*)malloc(myDefMesh.pmodel->numtriangles * 3 * sizeof(int));
-	for (int i = 0; i < myDefMesh.pmodel->numtriangles; ++i)
-	{
-		int start = i * 3;
-		tes[start + 0] = myDefMesh.pmodel->triangles[i].vindices[0];
-		tes[start + 1] = myDefMesh.pmodel->triangles[i].vindices[1];
-		tes[start + 2] = myDefMesh.pmodel->triangles[i].vindices[2];
-	}
-	btTriangleIndexVertexArray *vertexArray = new btTriangleIndexVertexArray(
-		(int)myDefMesh.pmodel->numtriangles,
-		tes,
-		3 * sizeof(int),
-		(int)myDefMesh.pmodel->numvertices,
-		myDefMesh.pmodel->vertices,
-		3 * sizeof(GLfloat)
-	);
-
-	btGImpactMeshShape *globeShape = new btGImpactMeshShape(vertexArray);
-	int scale = 1000;
-	globeShape->setLocalScaling(btVector3(scale, scale, scale));
-	globeShape->updateBound();
-
-	//
-	btTransform t;
-	t.setIdentity();
-	t.setOrigin(btVector3(0, 5, 0));
-	btMotionState* motion = new btDefaultMotionState(t);
-	btRigidBody::btRigidBodyConstructionInfo info(0, motion, globeShape);
-
-	info.m_friction = 0.5;
-	info.m_angularDamping = 0.2;
-
-	btRigidBody* body = new btRigidBody(info);
-	world->addRigidBody(body);
-	bodies.push_back(body);
-	/* ================================================================== */
+	//addCylinder(2, 5, 0, 30, 0, 1.0);
+	//addCone(2, 5, 5, 30, 0, 1.0);
+	//addBox(10, 2, 3, 0, 40, 0, 1.0);
 
 	addSphere(0.5, 0, 4, 0, 1.0);
+
+	globe.init(world);
 
 	glutMainLoop();
 
 	/*if (1000.0 / 60>SDL_GetTicks() - start)
 		SDL_Delay(1000.0 / 60 - (SDL_GetTicks() - start));
 */
-
-
-
 
 	//killskybox();
 	for (int i = 0; i<bodies.size(); i++)

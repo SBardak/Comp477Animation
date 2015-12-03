@@ -38,12 +38,30 @@
  */
 typedef struct _GLMmaterial
 {
-  char* name;                   /* name of material */
-  GLfloat diffuse[4];           /* diffuse component */
-  GLfloat ambient[4];           /* ambient component */
-  GLfloat specular[4];          /* specular component */
-  GLfloat emmissive[4];         /* emmissive component */
-  GLfloat shininess;            /* specular exponent */
+	char* name;                   /* name of material */
+	GLfloat diffuse[4];           /* diffuse component */
+	GLfloat ambient[4];           /* ambient component */
+	GLfloat specular[4];          /* specular component */
+#if 0
+	GLfloat emmissive[4];         /* emmissive component */
+#endif
+	GLfloat shininess;            /* specular exponent */
+	GLuint map_diffuse;     /* diffuse texture ID */
+#if 0
+	GLuint map_ambient;     /* ambient texture ID */
+	GLuint map_specular;     /* specular texture ID */
+	GLuint map_bump;     /* specular texture ID */
+	GLfloat dissolve;             /* transparency */
+	GLuint map_dissolve;     /* alpha texture ID */
+	GLuint lighting;                /* 0=disable, 1=ambient+diffuse, 2=full */
+#endif
+#ifdef AVL
+	int height,
+		width;
+	unsigned char* image;
+	char *t_filename;
+	GLuint t_id[1];
+#endif
 } GLMmaterial;
 
 /* GLMtriangle: Structure that defines a triangle in a model.

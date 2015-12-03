@@ -362,6 +362,14 @@ glmReadMTL(GLMmodel* model, char* name)
                 break;
             }
             break;
+		case 'd':
+			/* d = Dissolve factor (pseudo-transparency).
+			Values are from 0-1. 0 is completely transparent, 1 is opaque. */
+		{
+			float alpha;
+			fscanf(file, "%f", &alpha);
+			model->materials[nummaterials].diffuse[3] = alpha;
+		}
             default:
                 /* eat up rest of line */
                 fgets(buf, sizeof(buf), file);
@@ -1631,50 +1639,73 @@ glmDraw(GLMmodel* model, GLuint mode)
        wouldn't gain too much?  */
     
     group = model->groups;
-    while (group) {
-        if (mode & GLM_MATERIAL) {
-            material = &model->materials[group->material];
-            glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, material->ambient);
-            glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, material->diffuse);
-            glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, material->specular);
-            glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, material->shininess);
-        }
-        
-        if (mode & GLM_COLOR) {
-            glColor3fv(material->diffuse);
-        }
-        
-        glBegin(GL_TRIANGLES);
-        for (i = 0; i < group->numtriangles; i++) {
-            triangle = &T(group->triangles[i]);
-            
-            if (mode & GLM_FLAT)
-                glNormal3fv(&model->facetnorms[3 * triangle->findex]);
-            
+	int blending = 0;
+	int blendmodel = 0;
+	for (int blend = 0; blend < 2; ++blend)
+	{
+		group = model->groups;
+		while (group) {
+			material = &model->materials[group->material];
+			
+			blending = material->diffuse[3] < 1.0;
+			blendmodel |= blending;
 
-            if (mode & GLM_SMOOTH)
-                glNormal3fv(&model->normals[3 * triangle->nindices[0]]);
-            if (mode & GLM_TEXTURE)
-                glTexCoord2fv(&model->texcoords[2 * triangle->tindices[0]]);
-            glVertex3fv(&model->vertices[3 * triangle->vindices[0]]);
-            
-            if (mode & GLM_SMOOTH)
-                glNormal3fv(&model->normals[3 * triangle->nindices[1]]);
-            if (mode & GLM_TEXTURE)
-                glTexCoord2fv(&model->texcoords[2 * triangle->tindices[1]]);
-            glVertex3fv(&model->vertices[3 * triangle->vindices[1]]);
-            
-            if (mode & GLM_SMOOTH)
-				      glNormal3fv(&model->normals[3 * triangle->nindices[2]]);
-            if (mode & GLM_TEXTURE)
-                glTexCoord2fv(&model->texcoords[2 * triangle->tindices[2]]);
-            glVertex3fv(&model->vertices[3 * triangle->vindices[2]]);
-            
-        }
-        glEnd();
-        
-        group = group->next;
-    }
+			if (blend == blending)
+			{
+				if (mode & GLM_MATERIAL) {
+					glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, material->ambient);
+					glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, material->diffuse);
+					glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, material->specular);
+					glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, material->shininess);
+				}
+
+				if (mode & GLM_COLOR) {
+					glColor3fv(material->diffuse);
+				}
+
+				glBegin(GL_TRIANGLES);
+				for (i = 0; i < group->numtriangles; i++) {
+					triangle = &T(group->triangles[i]);
+
+					if (mode & GLM_FLAT)
+						glNormal3fv(&model->facetnorms[3 * triangle->findex]);
+
+
+					if (mode & GLM_SMOOTH)
+						glNormal3fv(&model->normals[3 * triangle->nindices[0]]);
+					if (mode & GLM_TEXTURE)
+						glTexCoord2fv(&model->texcoords[2 * triangle->tindices[0]]);
+					glVertex3fv(&model->vertices[3 * triangle->vindices[0]]);
+
+					if (mode & GLM_SMOOTH)
+						glNormal3fv(&model->normals[3 * triangle->nindices[1]]);
+					if (mode & GLM_TEXTURE)
+						glTexCoord2fv(&model->texcoords[2 * triangle->tindices[1]]);
+					glVertex3fv(&model->vertices[3 * triangle->vindices[1]]);
+
+					if (mode & GLM_SMOOTH)
+						glNormal3fv(&model->normals[3 * triangle->nindices[2]]);
+					if (mode & GLM_TEXTURE)
+						glTexCoord2fv(&model->texcoords[2 * triangle->tindices[2]]);
+					glVertex3fv(&model->vertices[3 * triangle->vindices[2]]);
+				}
+				glEnd();
+			}
+			group = group->next;
+		}
+		if (!blendmodel)
+			break;
+		/* Prep for second pass with alpha items */
+		glEnable(GL_BLEND);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE); /* Type Of Blending To Perform */
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDepthMask(GL_FALSE);  /* Turn off depth mask */
+	}
+	if (blendmodel)
+	{
+		glDepthMask(GL_TRUE);   /* DISABLE Blending conditions */
+		glDisable(GL_BLEND);
+	}
 }
 
 /* glmList: Generates and returns a display list for the model using

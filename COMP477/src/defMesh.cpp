@@ -107,7 +107,8 @@ void DefMesh::glDraw(int type)
     glColor3f(0.5, 0.5, 0.5);
     mode = GLM_NONE;
     mode = mode | GLM_SMOOTH;
-    
+	//mode = GLM_MATERIAL;// | GLM_COLOR;
+
     glPushMatrix();
 	int scale = 1000;
 	glTranslatef(0, 5, 0);
