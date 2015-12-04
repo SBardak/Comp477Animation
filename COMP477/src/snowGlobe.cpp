@@ -90,11 +90,17 @@ void SnowGlobe::prepareCollisionPlane()
 	btVector3 z(0, 0, 0);
 	planeBody->setAngularFactor(0);
 	planeBody->setLinearFactor(z);
+
+	//btTransform localTrans;
+	//localTrans.setIdentity();
+	////localTrans effectively shifts the center of mass with respect to the chassis
+	//localTrans.setOrigin(btVector3(0, 3, 0));
+	//planeBody->setCenterOfMassTransform(localTrans);
 }
 
 SnowGlobe::SnowGlobe()
 {
-	
+
 }
 
 void SnowGlobe::init(btDynamicsWorld *world)
@@ -135,7 +141,7 @@ void SnowGlobe::init(btDynamicsWorld *world)
 	t.setOrigin(btVector3(0, sphereOrigin, 0));
 	btMotionState* motion = new btDefaultMotionState(t);
 	//btRigidBody::btRigidBodyConstructionInfo info(mass, motion, a);
-	btRigidBody::btRigidBodyConstructionInfo info(mass, motion, globeShape);
+	/*btRigidBody::btRigidBodyConstructionInfo info(mass, motion, globeShape);
 
 	info.m_friction = 0.5;
 	info.m_angularDamping = 0.2;
@@ -143,15 +149,15 @@ void SnowGlobe::init(btDynamicsWorld *world)
 	sphereBody = new btRigidBody(info);
 
 	world->addRigidBody(sphereBody, collisiontypes::COL_GLOBE, collisiontypes::COL_GLOBE);
-	//sphereBody->setCollisionFlags(sphereBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
-	//sphereBody->setActivationState(DISABLE_DEACTIVATION);
-	sphereBody->setGravity(btVector3(0, 0, 0));
-	btVector3 z(0, 0, 0);
-	sphereBody->setAngularFactor(0);
-	sphereBody->setLinearFactor(z);
+	////sphereBody->setCollisionFlags(sphereBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+	////sphereBody->setActivationState(DISABLE_DEACTIVATION);
+	//sphereBody->setGravity(btVector3(0, 0, 0));
+	//btVector3 z(0, 0, 0);
+	//sphereBody->setAngularFactor(0);
+	//sphereBody->setLinearFactor(z);
 
-	sphereBody->setCcdMotionThreshold(0.50);
-	sphereBody->setCcdSweptSphereRadius(10);
+	//sphereBody->setCcdMotionThreshold(0.50);
+	//sphereBody->setCcdSweptSphereRadius(10);*/
 
 	/* Outer sphere */
 	/*btGImpactMeshShape *globeShape2 = new btGImpactMeshShape(vertexArray);
@@ -184,7 +190,41 @@ void SnowGlobe::init(btDynamicsWorld *world)
 	/* ================================================================== */
 
 	this->world = world;
-	prepareCollisionPlane();
+	//prepareCollisionPlane();
+
+	btCompoundShape* compound = new btCompoundShape();
+	btTransform localTrans;
+	localTrans.setIdentity();
+	//localTrans effectively shifts the center of mass with respect to the chassis
+	localTrans.setOrigin(btVector3(0, 0, 0));
+	compound->addChildShape(localTrans, globeShape);
+
+	btRigidBody::btRigidBodyConstructionInfo info(mass, motion, compound);
+
+	info.m_friction = 0.5;
+	info.m_angularDamping = 0.2;
+	info.m_restitution = 0.5;
+	sphereBody = new btRigidBody(info);
+
+	world->addRigidBody(sphereBody, collisiontypes::COL_GLOBE, collisiontypes::COL_GLOBE);
+	//sphereBody->setCollisionFlags(sphereBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+	//sphereBody->setActivationState(DISABLE_DEACTIVATION);
+	sphereBody->setGravity(btVector3(0, 0, 0));
+	btVector3 z(0, 0, 0);
+	sphereBody->setAngularFactor(0);
+	sphereBody->setLinearFactor(z);
+
+	sphereBody->setCcdMotionThreshold(0.50);
+	sphereBody->setCcdSweptSphereRadius(10);
+
+	t;
+	t.setIdentity();
+	t.setOrigin(btVector3(0, planeOrigin - (3.7f * (m_scale - 1)), 0));
+	btBoxShape* box = new btBoxShape(btVector3(10 / 2.0 * m_scale, 0.5f, 10 / 2.0 * m_scale));
+	localTrans.setIdentity();
+	//localTrans effectively shifts the center of mass with respect to the chassis
+	localTrans.setOrigin(btVector3(0, -6.5, 0));
+	compound->addChildShape(localTrans, box);
 }
 
 void SnowGlobe::glDraw()
@@ -194,7 +234,7 @@ void SnowGlobe::glDraw()
 	//mode = GLM_NONE;
 	mode = GLM_MATERIAL | GLM_SMOOTH;// | GLM_TEXTURE;// | GL_SMOOTH;
 	//mode = GLM_MATERIAL;// | GLM_COLOR;
-	
+
 	if (showGlobe || showSphere)
 	{
 		float ccd1 = sphereBody->getCcdMotionThreshold(),
@@ -215,9 +255,9 @@ void SnowGlobe::glDraw()
 			int scale = collisionSphereScale * m_scale;
 			glColor3f(0.5, 1, 0.5);
 			glPushMatrix();
-				glMultMatrixf(mat);     //translation,rotation
-				glScalef(scale, scale, scale);
-				glmDraw(pmodelCollisionSphere, mode);
+			glMultMatrixf(mat);     //translation,rotation
+			glScalef(scale, scale, scale);
+			glmDraw(pmodelCollisionSphere, mode);
 			glPopMatrix();
 			glEnable(GL_COLOR_MATERIAL);
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -241,29 +281,38 @@ void SnowGlobe::glDraw()
 		{
 			int scale = 15 * m_scale;
 			glPushMatrix();
-				glTranslatef(0, -sphereOrigin * m_scale, 0);
-				glMultMatrixf(mat);     //translation,rotation
-				glScalef(scale, scale, scale);
-				glmDraw(pmodelGlobe, mode);
+			glMultMatrixf(mat);     //translation,rotation
+			glTranslatef(0, -sphereOrigin * m_scale, 0);
+			glScalef(scale, scale, scale);
+			glmDraw(pmodelGlobe, mode);
 			glPopMatrix();
 			glEnable(GL_COLOR_MATERIAL);
 		}
 	}
-	
+
 	mode = GLM_COLOR | GLM_SMOOTH;
 
 	/* Render plane */
 	//if (showPlane && !(planeBody->getCollisionShape()->getShapeType() != STATIC_PLANE_PROXYTYPE))
-	if (showPlane && !(planeBody->getCollisionShape()->getShapeType() != BOX_SHAPE_PROXYTYPE))
+	if (showPlane)// && !(planeBody->getCollisionShape()->getShapeType() != BOX_SHAPE_PROXYTYPE))
 	{
+		btVector3 extent = ((btBoxShape*)((btCompoundShape*)sphereBody->getCollisionShape())->getChildShape(1))->getHalfExtentsWithoutMargin();
+
+
 		glColor3f(1, 0, 0);
-		btVector3 extent = ((btBoxShape*)planeBody->getCollisionShape())->getHalfExtentsWithoutMargin();
+		//btVector3 extent = ((btBoxShape*)planeBody->getCollisionShape())->getHalfExtentsWithoutMargin();
 		btTransform t;
-		planeBody->getMotionState()->getWorldTransform(t);
+		sphereBody->getMotionState()->getWorldTransform(t);
 		float mat[16];
 		t.getOpenGLMatrix(mat);
 		glPushMatrix();
 		glMultMatrixf(mat);     //translation,rotation
+
+		t = ((btCompoundShape*)sphereBody->getCollisionShape())->getChildTransform(1);
+		t.getOpenGLMatrix(mat);
+		glMultMatrixf(mat);     //translation,rotation
+
+
 		glBegin(GL_QUADS);
 		glVertex3f(-extent.x(), extent.y(), -extent.z());
 		glVertex3f(-extent.x(), -extent.y(), -extent.z());
@@ -324,15 +373,18 @@ void SnowGlobe::glDraw()
 void SnowGlobe::move(float x, float y, float z)
 {
 	btVector3 direction(x, y, z);
-	
+
 	//if (direction.length2() > 500)
 	//	direction *= 500 / direction.length2();
 
 	btTransform t;
 	//planeBody->translate(direction);
-	planeBody->setActivationState(ACTIVE_TAG);
-	planeBody->activate();
-	planeBody->setLinearVelocity(direction);
+	//planeBody->setActivationState(ACTIVE_TAG);
+	//planeBody->activate();
+	//planeBody->setLinearVelocity(direction);
+
+	//planeBody->setAngularVelocity(direction);
+
 	//
 	//planeBody->getMotionState()->getWorldTransform(t);
 	//t.setOrigin(t.getOrigin() + direction); // add offset here
@@ -346,8 +398,6 @@ void SnowGlobe::move(float x, float y, float z)
 	sphereBody->activate();
 	sphereBody->setLinearVelocity(direction);
 
-	sphereBody->setAngularVelocity(direction);
-
 	/*sphereBody2->setActivationState(ACTIVE_TAG);
 	sphereBody2->activate();
 	sphereBody2->setLinearVelocity(direction);*/
@@ -356,8 +406,14 @@ void SnowGlobe::move(float x, float y, float z)
 	//t.setOrigin(t.getOrigin() + direction); // add offset here
 	//sphereBody->setWorldTransform(t);
 	//sphereBody->getMotionState()->setWorldTransform(t);
-	
+
 	//sphereBody->applyForce(direction, t.getOrigin());
+}
+
+void SnowGlobe::rotate(float x, float y, float z)
+{
+	btVector3 direction(y, -x, z);
+	sphereBody->setAngularVelocity(direction);
 }
 
 SnowGlobe::~SnowGlobe()

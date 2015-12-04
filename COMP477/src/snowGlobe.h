@@ -51,10 +51,10 @@ private:
 	void prepareCollisionPlane();
 	void removeBody(btRigidBody *body);
 public:
-	
+
 	SnowGlobe();
 	~SnowGlobe();
-	
+
 	void SnowGlobe::init(btDynamicsWorld *world);
 	void glDraw();
 
@@ -63,8 +63,14 @@ public:
 	void toggleCollisionPlane() { showPlane = !showPlane; }
 
 	void move(float x, float y, float z);
+	void rotate(float x, float y, float z);
 
-	void killvel() { btVector3 z(0, 0, 0); sphereBody->setLinearVelocity(z); /*sphereBody2->setLinearVelocity(z);*/ planeBody->setLinearVelocity(z); }
+	void killvel() {
+		btVector3 z(0, 0, 0); sphereBody->setLinearVelocity(z); /*sphereBody2->setLinearVelocity(z);*/
+		sphereBody->setAngularVelocity(z);
+		/*planeBody->setLinearVelocity(z);
+		planeBody->setAngularVelocity(z);*/
+	}
 	//btRigidBody* getRigidBody()
 };
 

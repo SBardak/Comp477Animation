@@ -37,6 +37,7 @@ SnowGlobe globe;
 //DefMesh myDefMesh;
 
 bool alt = false;
+bool ctrl = false;
 
 //Switches
 int meshModel=0;
@@ -631,8 +632,11 @@ void mouseMoveEvent(int x, int y)
 	{
 		//std::cout << dx << " : " << dy << std::endl;
 		float div = 2;//0.240/*.0*/;s
-		globe.move(dx / div, -dy / div, 0);
-
+		if (!ctrl)
+			globe.move(dx / div, -dy / div, 0);
+		else 
+			globe.rotate(dx / div, -dy / div, 0);
+		
 		_mouseX = x;
 		_mouseY = y;
 	}
@@ -871,6 +875,10 @@ void specialFunc(int key, int x, int y)
 	{
 		alt = true;
 	}
+	else if (key == 114)
+	{
+		ctrl = true;
+	}
 }
 void specialFuncUp(int key, int x, int y)
 {
@@ -878,6 +886,10 @@ void specialFuncUp(int key, int x, int y)
 	if (key == 116)
 	{
 		alt = false;
+	}
+	else if (key == 114)
+	{
+		ctrl = false;
 	}
 }
 

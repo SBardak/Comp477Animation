@@ -1,3 +1,6 @@
 !*.obj
 !*.lib
 !*.dll
+
+COMP477/Debug/
+COMP477/Release/
