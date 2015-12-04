@@ -1,3 +1,7 @@
+
+
+#include "SnowManager.h"
+
 #pragma managed(push, off)
 #include <btBulletDynamicsCommon.h>
 #pragma managed(pop)
@@ -12,6 +16,7 @@
 #endif
 #endif
 
+#include "bullet-util\BulletDebugDrawer.h"
 #include <iostream>
 #include <cmath>
 #include <cstring>
@@ -19,6 +24,9 @@
 //#include "defMesh.h"
 
 #include "snowGlobe.h"
+
+#include <glm/gtc/type_ptr.hpp>
+
 using namespace std;
 
 
@@ -62,17 +70,34 @@ double _dragPosX = 0.0;
 double _dragPosY = 0.0;
 double _dragPosZ = 0.0;
 
-
-
-
+// Snow stuff
+SnowManager snowmanager;
+const int dontDraw = 5;
+// Bullet Stuff
 GLUquadricObj* quad;
 btDynamicsWorld* world;
 btDispatcher* dispatcher;
 btCollisionConfiguration* collisionConfig;
 btBroadphaseInterface* broadphase;
 btConstraintSolver* solver;
+
+GLBulletDebugDrawer* debugDrawer;
+
+//Bullet managing stuff
 std::vector<btRigidBody*> bodies;
 
+btRigidBody* addSnowflake(float x, float y, float z)
+{
+	btRigidBody* body = snowmanager.createSnowflake(x, y, z);
+	int all = collisiontypes::COL_GLOBE | collisiontypes::COL_PLANE;
+	world->addRigidBody(body, all, all);
+
+	body->setCcdMotionThreshold(0.5);
+	body->setCcdSweptSphereRadius(0.5);
+	body->setUserIndex(dontDraw);
+	bodies.push_back(body);
+	return body;
+}
 
 btRigidBody* addSphere(float rad, float x, float y, float z, float mass)
 {
@@ -485,7 +510,7 @@ void display()
 	{
 		if (bodies[i]->getCollisionShape()->getShapeType() == STATIC_PLANE_PROXYTYPE)
 			renderPlane(bodies[i]);
-		else if (bodies[i]->getCollisionShape()->getShapeType() == SPHERE_SHAPE_PROXYTYPE)
+		else if (bodies[i]->getCollisionShape()->getShapeType() == SPHERE_SHAPE_PROXYTYPE && bodies[i]->getUserIndex() != dontDraw)
 			renderSphere(bodies[i]);
 		//else if (bodies[i]->getCollisionShape()->getShapeType() == CYLINDER_SHAPE_PROXYTYPE)
 		//	renderCylinder(bodies[i]);
@@ -496,7 +521,23 @@ void display()
 	}
 	//btCollisionWorld::ClosestRayResultCallback rayCallback(rayFromWorld, rayToWorld);
 
+	// Draw snowflakes
+	GLdouble modelview[16];
+	GLdouble projection[16];
+	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+	glGetDoublev(GL_PROJECTION_MATRIX, projection);
+
+
+	glm::mat4 viewMatrix = glm::make_mat4(modelview);
+
+	glm::mat4 projectMatrix = glm::make_mat4(projection);
+
+	snowmanager.Draw(viewMatrix, projectMatrix);
+
 	globe.glDraw();
+
+	world->debugDrawWorld();
+
 	glPopMatrix();
 	glutSwapBuffers();
 }
@@ -673,6 +714,9 @@ void handleKeyPress(unsigned char key, int x, int y)
 	case 'a':
 		addSphere(0.5, 0, 5, 0.2, 10.0);
 		break;
+	case 's':
+		addSnowflake(0.0f, 5.0f, 0.2f);
+		break;
 	case 'h':
 		globe.toggleCollisionSphere();
 		break;
@@ -701,6 +745,14 @@ void handleKeyPress(unsigned char key, int x, int y)
 	//	planeBody->getMotionState()->setWorldTransform(t);
 	//	planeBody->applyForce(btVector3(0, -1, 0), t.getOrigin());
 	//	break;
+	case 'v':
+		debugDrawer->setDebugMode(btIDebugDraw::DBG_NoDebug); break;
+	case 'b':
+		debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawAabb); break;
+	case 'n':
+		debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe); break;
+	case 'm':
+		debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawWireframe); break;
 	case 'q':
 		exit(0);
 	}
@@ -726,6 +778,11 @@ void init(float angle)
 	//optionally set the m_splitImpulsePenetrationThreshold (only used when m_splitImpulse  is enabled)
 	//only enable split impulse position correction when the penetration is deeper than this m_splitImpulsePenetrationThreshold, otherwise use the regular velocity/position constraint coupling (Baumgarte).
 	info.m_splitImpulsePenetrationThreshold = -0.02;
+
+	// Setup Debug Drawer
+	debugDrawer = new GLBulletDebugDrawer();
+	debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawWireframe);
+	world->setDebugDrawer(debugDrawer);
 
 	//btTransform t;
 	//t.setIdentity();
@@ -799,6 +856,8 @@ void init(float angle)
 
 	//glEnable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glewInit();
 }
 
 void specialFunc(int key, int x, int y)
@@ -846,6 +905,7 @@ int main(int argc, char **argv)
 	addSphere(0.5, 0, 4, 0, 1.0);
 
 	globe.init(world);
+	snowmanager.init();
 
 	glutMainLoop();
 
@@ -869,4 +929,5 @@ int main(int argc, char **argv)
 	delete broadphase;
 	delete world;
 	gluDeleteQuadric(quad);
+	return 0;
 }

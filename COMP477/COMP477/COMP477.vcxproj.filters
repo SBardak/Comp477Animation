@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Utility">
+      <UniqueIdentifier>{906f2ce6-1c36-4005-afc3-d069bc477d6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Utility">
+      <UniqueIdentifier>{19e386e2-9ad4-440e-97da-db31cb18517e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Snow">
+      <UniqueIdentifier>{a9b980e0-2cdb-496f-82f8-561e3c9d26c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Snow">
+      <UniqueIdentifier>{3c5523f4-b799-47bc-ae6b-b889dfe77efc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\glm.h">
@@ -45,6 +57,33 @@
     <ClInclude Include="..\src\snowGlobe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\bullet-util\BulletDebugDrawer.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\bullet-util\BulletUtility.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\opengl-util\ShaderUtility.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\opengl-util\TextureUtility.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\RigidSnowflake.h">
+      <Filter>Header Files\Snow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Snowflake.h">
+      <Filter>Header Files\Snow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\SnowManager.h">
+      <Filter>Header Files\Snow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\World.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\TimeManager.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\simpleMath.cpp">
@@ -66,6 +105,30 @@
       <Filter>Resource Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\snowGlobe.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\bullet-util\BulletUtility.cpp">
+      <Filter>Resource Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\opengl-util\ShaderUtility.cpp">
+      <Filter>Resource Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\opengl-util\TextureUtility.cpp">
+      <Filter>Resource Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\RigidSnowflake.cpp">
+      <Filter>Resource Files\Snow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\SnowFlake.cpp">
+      <Filter>Resource Files\Snow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\SnowManager.cpp">
+      <Filter>Resource Files\Snow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\glMainDeprecated.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\World.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
   </ItemGroup>

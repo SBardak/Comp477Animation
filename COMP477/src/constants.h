@@ -1,0 +1,1 @@
+const float epsilon = 0.00001f;

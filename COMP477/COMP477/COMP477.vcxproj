@@ -40,7 +40,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\freeglut\include</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)\freeglut\lib</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)\freeglut\lib\$(Configuration)\;$(SolutionDir)\freeglut\lib\$(Configuration)\$(Platform)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\freeglut\include</IncludePath>
@@ -56,7 +56,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>BulletCollision_vs2010_debug.lib;BulletDynamics_vs2010_debug.lib;LinearMath_vs2010_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>BulletCollision.lib;BulletDynamics.lib;LinearMath.lib;freeglut.lib;glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -77,25 +77,42 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\bullet-util\BulletDebugDrawer.h" />
+    <ClInclude Include="..\src\bullet-util\BulletUtility.h" />
     <ClInclude Include="..\src\glm.h" />
     <ClInclude Include="..\src\GL\freeglut.h" />
     <ClInclude Include="..\src\GL\freeglut_ext.h" />
     <ClInclude Include="..\src\GL\freeglut_std.h" />
     <ClInclude Include="..\src\GL\glut.h" />
+    <ClInclude Include="..\src\opengl-util\ShaderUtility.h" />
+    <ClInclude Include="..\src\opengl-util\TextureUtility.h" />
     <ClInclude Include="..\src\quaternion.h" />
+    <ClInclude Include="..\src\RigidSnowflake.h" />
     <ClInclude Include="..\src\simpleMath.h" />
     <ClInclude Include="..\src\skeleton.h" />
+    <ClInclude Include="..\src\Snowflake.h" />
     <ClInclude Include="..\src\snowGlobe.h" />
+    <ClInclude Include="..\src\SnowManager.h" />
     <ClInclude Include="..\src\splitstring.h" />
+    <ClInclude Include="..\src\TimeManager.h" />
+    <ClInclude Include="..\src\World.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\bullet-util\BulletUtility.cpp" />
     <ClCompile Include="..\src\glm.cpp" />
     <ClCompile Include="..\src\glMain.cpp" />
+    <ClCompile Include="..\src\glMainDeprecated.cpp" />
+    <ClCompile Include="..\src\opengl-util\ShaderUtility.cpp" />
+    <ClCompile Include="..\src\opengl-util\TextureUtility.cpp" />
     <ClCompile Include="..\src\quaternion.cpp" />
+    <ClCompile Include="..\src\RigidSnowflake.cpp" />
     <ClCompile Include="..\src\simpleMath.cpp" />
     <ClCompile Include="..\src\skeleton.cpp" />
+    <ClCompile Include="..\src\SnowFlake.cpp" />
     <ClCompile Include="..\src\snowGlobe.cpp" />
+    <ClCompile Include="..\src\SnowManager.cpp" />
     <ClCompile Include="..\src\splitstring.cpp" />
+    <ClCompile Include="..\src\World.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
