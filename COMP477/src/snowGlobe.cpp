@@ -346,6 +346,8 @@ void SnowGlobe::move(float x, float y, float z)
 	sphereBody->activate();
 	sphereBody->setLinearVelocity(direction);
 
+	sphereBody->setAngularVelocity(direction);
+
 	/*sphereBody2->setActivationState(ACTIVE_TAG);
 	sphereBody2->activate();
 	sphereBody2->setLinearVelocity(direction);*/
