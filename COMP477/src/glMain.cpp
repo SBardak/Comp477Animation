@@ -456,10 +456,11 @@ void myTickCallback(btDynamicsWorld *world, btScalar timeStep, btRigidBody *body
 }
 
 void display()
-{
+{	
 	float one = 1.0f / 60,
 		two = 10,
 		three = 1.0f / 600;
+	snowmanager.Update(one);
 	world->stepSimulation(one, two, three);
 	//world->stepSimulation(one);
 
@@ -716,6 +717,9 @@ void handleKeyPress(unsigned char key, int x, int y)
 		break;
 	case 's':
 		addSnowflake(0.0f, 5.0f, 0.2f);
+		break;
+	case 'w':
+		snowmanager.SetApplyWind(!snowmanager.IsWindOn());
 		break;
 	case 'h':
 		globe.toggleCollisionSphere();

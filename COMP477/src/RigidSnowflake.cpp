@@ -1,7 +1,7 @@
 #include "RigidSnowflake.h"
 #define SMALL_PI 3.14159265359
 
-const float RigidSnowflake::rateOfChange = 0.5f;
+const float RigidSnowflake::rateOfChange = 0.7f;
 
 float* RigidSnowflake::getPosition()
 {
@@ -31,7 +31,10 @@ void RigidSnowflake::Update(float dt)
 		btVector3 force = btVector3(0.0, abs(sinAngle) * windForce.y(), 0.0f) + currWindForce;
 
 		force += gravityForce;
-		body->setGravity(force);
-		//body->applyCentralForce(currWindForce);
+		
+		//Make force relative to self
+		btMatrix3x3& worldTransform = body->getWorldTransform().getBasis();
+		btVector3 relativeForce = worldTransform * force;
+		body->applyCentralForce(relativeForce);
 	}	
 }

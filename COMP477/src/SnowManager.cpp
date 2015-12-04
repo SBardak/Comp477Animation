@@ -1,12 +1,5 @@
 #include "SnowManager.h"
 
-#define BIT(x) (1<<(x))
-enum collisiontypes {
-	COL_NOTHING = 0, //<Collide with nothing
-	COL_GLOBE = BIT(1), //<Collide globe
-	COL_PLANE = BIT(2), //<Collide plane
-};
-
 const float SnowManager::snowflakeRadius = 0.2f;
 
 void SnowManager::init()
@@ -44,13 +37,10 @@ btRigidBody* SnowManager::addSnowflake(btDynamicsWorld* world, float x, float y,
 
 	btRigidBody* body = createRigidBody(world, mass, startTransform, snowShape);
 
-	body->setCcdMotionThreshold(0.5);
-	body->setCcdSweptSphereRadius(0.5);
-
 	body->setAngularFactor(btScalar(0.2f));
-	body->setDamping(btScalar(0.5f), btScalar(0.95));
+	body->setDamping(body->getLinearDamping(), btScalar(0.95));
 	RigidSnowflake newSnowflake(body, snowflakeRadius * 2, snowflakeRadius * 2);
-	newSnowflake.setWindForce(btVector3(20.0f, 15.0f, 20.0f));
+	newSnowflake.setWindForce(btVector3(100.0f, 25.0f, 100.0f));
 	snowflakes.push_back(newSnowflake);
 	return body;
 }
@@ -74,7 +64,7 @@ btRigidBody* SnowManager::createSnowflake(float x, float y, float z)
 	body->setAngularFactor(btScalar(0.2f));
 	body->setDamping(btScalar(0.5f), btScalar(0.95));
 	RigidSnowflake newSnowflake(body, snowflakeRadius * 2, snowflakeRadius * 2);
-	newSnowflake.setWindForce(btVector3(20.0f, 15.0f, 20.0f));
+	newSnowflake.setWindForce(btVector3(20.0f, 25.0f, 20.0f));
 	snowflakes.push_back(newSnowflake);
 	return body;
 }

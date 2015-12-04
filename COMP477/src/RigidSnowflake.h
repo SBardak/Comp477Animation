@@ -10,10 +10,10 @@ class RigidSnowflake : public Snowflake
 public:
 	btRigidBody* body;
 
-	RigidSnowflake(btRigidBody* rigidBody, float width, float height) : Snowflake(0, 0, 0, width, height)
+	RigidSnowflake(btRigidBody* rigidBody, float width, float height, btVector3 &worldGravity = btVector3(0,-10,0)) : Snowflake(0, 0, 0, width, height)
 	{
 		body = rigidBody;
-		initialGravity = gravityForce = body->getGravity();
+		initialGravity = gravityForce = worldGravity;
 		progress = 0.0f;
 	}
 
@@ -25,6 +25,7 @@ public:
 		if (!applyWind && on)
 		{
 			//wake up body
+			body->activate();
 			body->applyCentralForce(windForce);
 		}
 		applyWind = on;
@@ -50,6 +51,7 @@ public:
 	void resetGravity()
 	{
 		gravityForce = initialGravity;
+		body->setGravity(gravityForce);
 	}
 
 	virtual float* getPosition();
