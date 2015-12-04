@@ -26,10 +26,12 @@ private:
 	bool showSphere = false;
 	bool showGlobe = true;
 	bool showPlane = false;
-	int mass = 0;
+	int mass = 1;
 	int collisionSphereScale = 980;
+	//int collisionOuterSphereScale = 1300;
 	float sphereOrigin = 5.3;
-	float planeOrigin = 1.8;
+	float planeOrigin = 0.7;
+	float m_scale = 1.5;//2.5f;
 
 	/* Models */
 	GLMmodel * pmodelCollisionSphere;
@@ -39,6 +41,7 @@ private:
 	btDynamicsWorld *world;
 	btRigidBody *planeBody;
 	btRigidBody *sphereBody;
+	//btRigidBody *sphereBody2;
 
 	/* Loading */
 	void SnowGlobe::loadCollisionSphere();
@@ -61,6 +64,7 @@ public:
 
 	void move(float x, float y, float z);
 
+	void killvel() { btVector3 z(0, 0, 0); sphereBody->setLinearVelocity(z); /*sphereBody2->setLinearVelocity(z);*/ planeBody->setLinearVelocity(z); }
 	//btRigidBody* getRigidBody()
 };
 

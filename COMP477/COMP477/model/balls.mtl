@@ -1,7 +1,7 @@
 newmtl material23
-Kd 1.000000 1.000000 1.000000
+Kd 0.300000 0.300000 1.000000
 Ks 1.000000 1.000000 1.000000
 Ns 100.000000
-d 1.000000
+d 0.700000
 illum 2
 map_Kd h:\downloads\3d\octane\instancing\balls\hxntmp_balls\balls0.png

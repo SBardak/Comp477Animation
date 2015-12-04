@@ -28,6 +28,8 @@ SnowGlobe globe;
 //Create Mesh
 //DefMesh myDefMesh;
 
+bool alt = false;
+
 //Switches
 int meshModel=0;
 bool drawSkeleton=true;
@@ -89,7 +91,7 @@ btRigidBody* addSphere(float rad, float x, float y, float z, float mass)
 	info.m_friction = 0.5;
 	info.m_angularDamping = 0.2;
 	info.m_linearDamping = 0.5;
-	info.m_restitution = 0;
+	info.m_restitution = 0.3;
 	//
 
 
@@ -97,8 +99,8 @@ btRigidBody* addSphere(float rad, float x, float y, float z, float mass)
 	int all = collisiontypes::COL_GLOBE | collisiontypes::COL_PLANE;
 	world->addRigidBody(body, all, all);
 
-	body->setCcdMotionThreshold(5);
-	body->setCcdSweptSphereRadius(10);
+	body->setCcdMotionThreshold(0.5);
+	body->setCcdSweptSphereRadius(0.5);
 
 	bodies.push_back(body);
 	return body;
@@ -417,7 +419,7 @@ void pos(double *px, double *py, double *pz, const int x, const int y,
 	*pz = _zNear;
 }
 
-btScalar mMaxSpeed = 30;
+btScalar mMaxSpeed = 15;
 void myTickCallback(btDynamicsWorld *world, btScalar timeStep, btRigidBody *body) {
 	// mShipBody is the spaceship's btRigidBody
 	btVector3 velocity = body->getLinearVelocity();
@@ -431,10 +433,13 @@ void myTickCallback(btDynamicsWorld *world, btScalar timeStep, btRigidBody *body
 void display()
 {
 	float one = 1.0f / 60,
-		two = 5,
-		three = 1.0f / 300;
+		two = 10,
+		three = 1.0f / 600;
 	world->stepSimulation(one, two, three);
 	//world->stepSimulation(one);
+
+	globe.killvel();
+
 	int numManifolds = world->getDispatcher()->getNumManifolds();
 
 	for each (btRigidBody* bod in bodies)
@@ -574,82 +579,94 @@ void mouseEvent(int button, int state, int x, int y)
 
 void mouseMoveEvent(int x, int y)
 {
+	//std::cout << "move" << std::endl;
 	bool changed = false;
 
 	const int dx = x - _mouseX;
 	const int dy = y - _mouseY;
 
-	//std::cout << dx << " : " << dy << std::endl;
-	float div = 240;//0.240/*.0*/;s
-	globe.move(dx / div, -dy / div, 0);
+	if (!alt)
+	{
+		//std::cout << dx << " : " << dy << std::endl;
+		float div = 2;//0.240/*.0*/;s
+		globe.move(dx / div, -dy / div, 0);
 
-	_mouseX = x;
-	_mouseY = y;
+		_mouseX = x;
+		_mouseY = y;
+	}
+	else
+	{
+		int viewport[4];
+		glGetIntegerv(GL_VIEWPORT, viewport);
 
-	//int viewport[4];
-	//glGetIntegerv(GL_VIEWPORT, viewport);
+		if (dx == 0 && dy == 0)
+			return;
 
-	//if (dx == 0 && dy == 0)
-	//	return;
+		if (_mouseMiddle || (_mouseLeft && _mouseRight)) {
+			/* double s = exp((double)dy*0.01); */
+			/* glScalef(s,s,s); */
+			/* if(abs(prev_z) <= 1.0) */
 
-	//if (_mouseMiddle || (_mouseLeft && _mouseRight)) {
-	//	/* double s = exp((double)dy*0.01); */
-	//	/* glScalef(s,s,s); */
-	//	/* if(abs(prev_z) <= 1.0) */
+			glLoadIdentity();
+			glTranslatef(0, 0, dy * 0.1);
+			glMultMatrixd(_matrix);
 
-	//	glLoadIdentity();
-	//	glTranslatef(0, 0, dy * 0.1);
-	//	glMultMatrixd(_matrix);
+			changed = true;
+		}
+		else if (_mouseLeft) {
+			double ax, ay, az;
+			double bx, by, bz;
+			double angle;
 
-	//	changed = true;
-	//}
-	//else if (_mouseLeft) {
-	//	double ax, ay, az;
-	//	double bx, by, bz;
-	//	double angle;
+			ax = 0;// dy;
+			ay = dx;
+			az = 0.0;
+			angle = vlen(ax, ay, az) / (double)(viewport[2] + 1) * 180.0;
 
-	//	ax = dy;
-	//	ay = dx;
-	//	az = 0.0;
-	//	angle = vlen(ax, ay, az) / (double)(viewport[2] + 1) * 180.0;
+			/* Use inverse matrix to determine local axis of rotation */
 
-	//	/* Use inverse matrix to determine local axis of rotation */
+			bx = _matrixI[0] * ax + _matrixI[4] * ay + _matrixI[8] * az;
+			by = _matrixI[1] * ax + _matrixI[5] * ay + _matrixI[9] * az;
+			bz = _matrixI[2] * ax + _matrixI[6] * ay + _matrixI[10] * az;
 
-	//	bx = _matrixI[0] * ax + _matrixI[4] * ay + _matrixI[8] * az;
-	//	by = _matrixI[1] * ax + _matrixI[5] * ay + _matrixI[9] * az;
-	//	bz = _matrixI[2] * ax + _matrixI[6] * ay + _matrixI[10] * az;
+			//glRotatef(angle, bx, by, bz);
+			if (dx > 0)
+				glRotatef(angle, 0, 1, 0);
+			else
+				glRotatef(angle, 0, -1, 0);
 
-	//	glRotatef(angle, bx, by, bz);
 
-	//	changed = true;
-	//}
-	//else if (_mouseRight) {
-	//	double px, py, pz;
+			changed = true;
+		}
+		else if (_mouseRight) {
+			double px, py, pz;
 
-	//	pos(&px, &py, &pz, x, y, viewport);
+			pos(&px, &py, &pz, x, y, viewport);
 
-	//	glLoadIdentity();
-	//	glTranslatef(px - _dragPosX, py - _dragPosY, pz - _dragPosZ);
-	//	glMultMatrixd(_matrix);
+			glLoadIdentity();
+			glTranslatef(px - _dragPosX, py - _dragPosY, pz - _dragPosZ);
+			glMultMatrixd(_matrix);
 
-	//	_dragPosX = px;
-	//	_dragPosY = py;
-	//	_dragPosZ = pz;
+			_dragPosX = px;
+			_dragPosY = py;
+			_dragPosZ = pz;
 
-	//	changed = true;
-	//}
+			changed = true;
+		}
 
-	//_mouseX = x;
-	//_mouseY = y;
+		_mouseX = x;
+		_mouseY = y;
 
-	//if (changed) {
-	//	getMatrix();
-	//	glutPostRedisplay();
-	//}
+		if (changed) {
+			getMatrix();
+			glutPostRedisplay();
+		}
+	}
 }
 
 void handleKeyPress(unsigned char key, int x, int y)
 {
+	std::cout << key << std::endl;
 	switch (key)
 	{
 		/* Frame movement */
@@ -733,7 +750,9 @@ void init(float angle)
 	//Light values and coordinates
 	GLfloat ambientLight[] = { 0.3f, 0.3f, 0.3f, 1.0f };
 	GLfloat diffuseLight[] = { 0.7f, 0.7f, 0.7f, 1.0f };
-	GLfloat lightPos[] = { 20.0f, 20.0f, 50.0f, 1.0f };
+	//GLfloat lightPos[] = { 20.0f, 20.0f, 50.0f, 1.0f };
+	GLfloat lightPos[] = { 0.0f, 50.0f, -25.0f, 1.0f };
+	//GLfloat lightPos[] = { 0.0f, 20.0f, 0.0f, 1.0f };
 	glEnable(GL_LIGHT0);
 
 	glEnable(GL_DEPTH_TEST);
@@ -782,6 +801,23 @@ void init(float angle)
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+void specialFunc(int key, int x, int y)
+{
+	std::cout << 1 << std::endl;
+	if (key == 116)
+	{
+		alt = true;
+	}
+}
+void specialFuncUp(int key, int x, int y)
+{
+	std::cout << 1 << std::endl;
+	if (key == 116)
+	{
+		alt = false;
+	}
+}
+
 int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);
@@ -798,7 +834,8 @@ int main(int argc, char **argv)
 	glutMotionFunc(mouseMoveEvent);
 	glutKeyboardFunc(handleKeyPress);
 	glutPassiveMotionFunc(mousePassiveFunc);
-
+	glutSpecialFunc(specialFunc);
+	glutSpecialUpFunc(specialFuncUp);
 
 	float angle = 50;
 	init(angle);
