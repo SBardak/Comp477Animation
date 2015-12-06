@@ -30,12 +30,6 @@
     <ClInclude Include="..\src\glm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\simpleMath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\skeleton.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\splitstring.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -49,9 +43,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\GL\glut.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\quaternion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\snowGlobe.h">
@@ -78,9 +69,6 @@
     <ClInclude Include="..\src\SnowManager.h">
       <Filter>Header Files\Snow</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\World.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\TimeManager.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
@@ -89,12 +77,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\simpleMath.cpp">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\skeleton.cpp">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\splitstring.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
@@ -102,9 +84,6 @@
       <Filter>Resource Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\glMain.cpp">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\quaternion.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\snowGlobe.cpp">
@@ -127,12 +106,6 @@
     </ClCompile>
     <ClCompile Include="..\src\SnowManager.cpp">
       <Filter>Resource Files\Snow</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\glMainDeprecated.cpp">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\World.cpp">
-      <Filter>Resource Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\present.cpp">
       <Filter>Resource Files</Filter>
