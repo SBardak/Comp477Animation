@@ -299,12 +299,8 @@ void SnowGlobe::move(float x, float y, float z)
 void SnowGlobe::rotate(float x, float y, float z)
 {
 	GLdouble modelview[16];
-	GLdouble projection[16];
 	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
-	glGetDoublev(GL_PROJECTION_MATRIX, projection);
 	glm::mat4 viewMatrix = glm::make_mat4(modelview);
-
-	glm::mat4 projectMatrix = glm::make_mat4(projection);
 	viewMatrix = glm::inverse(viewMatrix);
 	glm::vec4 dir(y, -x, z,0);
 	dir = viewMatrix * dir;
