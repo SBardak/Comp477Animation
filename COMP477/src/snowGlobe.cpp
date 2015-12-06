@@ -39,6 +39,22 @@ void SnowGlobe::loadGlobeMesh()
 	//loadMesh(pmodelGlobe, "model/snowglobe.obj");
 }
 
+void SnowGlobe::loadTree()
+{
+	pmodelTree = NULL;
+	if (!pmodelTree) {	/* load up the model */
+
+		char meshFile[] = "model/lowpolytree.obj";
+		pmodelTree = glmReadOBJ(meshFile);
+		if (!pmodelTree) {
+			return;
+		}
+		glmFacetNormals(pmodelTree);
+		glmVertexNormals(pmodelTree, 0);
+		glmFacetNormals(pmodelTree);
+	}
+}
+
 void SnowGlobe::loadMesh(GLMmodel *pmodel, std::string mesh)
 {
 	pmodel = NULL;
@@ -108,6 +124,7 @@ void SnowGlobe::init(btDynamicsWorld *world)
 	/* Start by loading models */
 	loadCollisionSphere();
 	loadGlobeMesh();
+	loadTree();
 
 	/* Globe physics */
 	/* ================================================================== */
@@ -226,11 +243,17 @@ void SnowGlobe::init(btDynamicsWorld *world)
 	localTrans.setOrigin(btVector3(0, -6.5, 0));
 	compound->addChildShape(localTrans, box);
 
-	btBoxShape* house = new btBoxShape(btVector3(1.0f * m_scale, 0.5f * m_scale, 1.5f * m_scale));
+	btConeShape* tree = new btConeShape(2.4, 8.5);
 	localTrans.setIdentity();
 	//localTrans effectively shifts the center of mass with respect to the chassis
-	localTrans.setOrigin(btVector3(0, -6, 0));
-	compound->addChildShape(localTrans, house);
+	localTrans.setOrigin(btVector3(0,-0.5, 0));
+	compound->addChildShape(localTrans, tree);
+
+	btCylinderShape* treeBase = new btCylinderShape(btVector3(0.7, 0.7, 0.7));
+	localTrans.setIdentity();
+	//localTrans effectively shifts the center of mass with respect to the chassis
+	localTrans.setOrigin(btVector3(0, -5.5, 0));
+	compound->addChildShape(localTrans, treeBase);
 }
 
 void SnowGlobe::setUpdatedOrigin(btVector3 &newOrigin){
@@ -286,7 +309,7 @@ void SnowGlobe::glDraw()
 			*/
 		}
 
-		/* Render globe */
+		/* Render globe & tree*/
 		if (showGlobe)
 		{
 			int scale = 15 * m_scale;
@@ -295,6 +318,9 @@ void SnowGlobe::glDraw()
 			glTranslatef(0, -sphereOrigin * m_scale, 0);
 			glScalef(scale, scale, scale);
 			glmDraw(pmodelGlobe, mode);
+			glTranslatef(0, 0.22, 0);
+			glScalef(0.085, 0.085, 0.085);
+			glmDraw(pmodelTree, mode);
 			glPopMatrix();
 			glEnable(GL_COLOR_MATERIAL);
 		}
@@ -380,9 +406,8 @@ void SnowGlobe::glDraw()
 	}
 
 	// Draw 2nd child -> House box
+	/*
 	btVector3 extent = ((btBoxShape*)((btCompoundShape*)sphereBody->getCollisionShape())->getChildShape(2))->getHalfExtentsWithoutMargin();
-
-
 	glColor3f(0, 0, 1);
 	btTransform t;
 	sphereBody->getMotionState()->getWorldTransform(t);
@@ -434,6 +459,7 @@ void SnowGlobe::glDraw()
 	glVertex3f(extent.x(), -extent.y(), -extent.z());
 	glEnd();
 	glPopMatrix();
+	*/
 }
 
 void SnowGlobe::move(float x, float y, float z)

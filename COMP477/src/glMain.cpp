@@ -1063,7 +1063,7 @@ int main(int argc, char **argv)
 
 	for (int i = 0; i < 3; ++i)
 	{
-		Present pre(0, 0, 0, 1, 0.5);
+		Present pre(2, 0, 2, 1, 0.5);
 		pre.init(world);
 		pre.setBoxColor(i % 3 == 0 ? 1 : 0, i % 3 == 1 ? 1 : 0, i % 3 == 2 ? 1 : 0);
 		presents.push_back(pre);

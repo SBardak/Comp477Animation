@@ -36,6 +36,7 @@ private:
 	/* Models */
 	GLMmodel * pmodelCollisionSphere;
 	GLMmodel * pmodelGlobe;
+	GLMmodel * pmodelTree;
 
 	/* Bullet */
 	btDynamicsWorld *world;
@@ -46,6 +47,7 @@ private:
 	/* Loading */
 	void SnowGlobe::loadCollisionSphere();
 	void SnowGlobe::loadGlobeMesh();
+	void SnowGlobe::loadTree();
 	void SnowGlobe::loadMesh(GLMmodel *pmodel, std::string mesh);
 
 	void prepareCollisionPlane();
