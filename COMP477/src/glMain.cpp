@@ -147,9 +147,7 @@ btRigidBody* addSnowflake(float x, float y, float z)
 	btRigidBody* body = snowmanager.createSnowflake(x, y, z);
 	int all = collisiontypes::COL_GLOBE | collisiontypes::COL_PLANE;
 	world->addRigidBody(body, all, all);
-
-	btVector3 h(0.3, 0.3, 0.3);
-	body->setLinearFactor(h);
+	
 	body->setCcdMotionThreshold(0.5);
 	body->setCcdSweptSphereRadius(0.5);
 	body->setUserIndex(dontDraw);
