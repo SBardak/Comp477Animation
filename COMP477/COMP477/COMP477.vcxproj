@@ -87,16 +87,12 @@
     <ClInclude Include="..\src\opengl-util\ShaderUtility.h" />
     <ClInclude Include="..\src\opengl-util\TextureUtility.h" />
     <ClInclude Include="..\src\present.h" />
-    <ClInclude Include="..\src\quaternion.h" />
     <ClInclude Include="..\src\RigidSnowflake.h" />
-    <ClInclude Include="..\src\simpleMath.h" />
-    <ClInclude Include="..\src\skeleton.h" />
     <ClInclude Include="..\src\Snowflake.h" />
     <ClInclude Include="..\src\snowGlobe.h" />
     <ClInclude Include="..\src\SnowManager.h" />
     <ClInclude Include="..\src\splitstring.h" />
     <ClInclude Include="..\src\TimeManager.h" />
-    <ClInclude Include="..\src\World.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\bullet-util\BulletUtility.cpp" />

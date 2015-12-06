@@ -30,12 +30,6 @@
     <ClInclude Include="..\src\glm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\simpleMath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\skeleton.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\splitstring.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -49,9 +43,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\GL\glut.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\quaternion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\snowGlobe.h">
@@ -77,9 +68,6 @@
     </ClInclude>
     <ClInclude Include="..\src\SnowManager.h">
       <Filter>Header Files\Snow</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\World.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\TimeManager.h">
       <Filter>Header Files\Utility</Filter>
