@@ -51,7 +51,7 @@ btRigidBody* SnowManager::createSnowflake(float x, float y, float z)
 	btTransform startTransform;
 	startTransform.setIdentity();
 
-	btScalar	mass(0.2f);
+	btScalar	mass(0.1f);
 
 	startTransform.setOrigin(btVector3(
 		btScalar(x),

@@ -794,7 +794,10 @@ void handleKeyPress(unsigned char key, int x, int y)
 		addSphere(0.5, spawnLoc.x, spawnLoc.y, spawnLoc.z, 10.0);
 		break;
 	case 's':
-		addSnowflake(spawnLoc.x, spawnLoc.y, spawnLoc.z);
+		for (int i = 0; i < 10; i++)
+		{
+			addSnowflake(spawnLoc.x, spawnLoc.y, spawnLoc.z);
+		}		
 		break;
 	case 'w':
 		snowmanager.SetApplyWind(!snowmanager.IsWindOn());
@@ -1011,9 +1014,9 @@ int main(int argc, char **argv)
 
 	float angle = 50;
 	init(angle);
-	addCylinder(2, 2, 0, 5, 0, 10);
-	addCone(2, 2, 0, 5, 0, 10);
-	addBox(2, 2, 3, 0, 5, 0, 10);
+	addCylinder(2, 2, 0, 5, 0, 20);
+	addCone(2, 2, 0, 5, 0, 20);
+	addBox(2, 2, 3, 0, 5, 0, 20);
 
 	addSphere(0.5, 0, 4, 0, 1.0);
 	initTime();
