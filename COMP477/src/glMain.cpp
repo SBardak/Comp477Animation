@@ -34,8 +34,8 @@ using namespace std;
 //Create Globe
 SnowGlobe globe;
 
-//Create Mesh
-//DefMesh myDefMesh;
+/* Used to exit */
+int windowID;
 
 bool alt = false;
 bool ctrl = false;
@@ -96,6 +96,42 @@ std::vector<btRigidBody*> bodies;
 
 // Initial object spawn position
 Vec3 spawnLoc = Vec3(0, 5, 0.2);
+
+glm::vec3 getVector(GLdouble x1, GLdouble y1, GLdouble z1, GLdouble x2, GLdouble y2, GLdouble z2)
+{
+	GLdouble pos3D_x, pos3D_y, pos3D_z;
+
+	// arrays to hold matrix information
+
+	GLdouble model_view[16];
+	glGetDoublev(GL_MODELVIEW_MATRIX, model_view);
+
+	GLdouble projection[16];
+	glGetDoublev(GL_PROJECTION_MATRIX, projection);
+
+	GLint viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
+
+	GLdouble
+		xt[4] = { x1, x2 },
+		yt[4] = { y1, y2 },
+		zt[4] = { z1, z2 }
+	;
+	glm::vec3 v[2];
+
+	for (int i = 0; i < 2; ++i)
+	{
+		x1 = xt[i]; y1 = yt[i]; z1 = zt[0];
+		// get 3D coordinates based on window coordinates
+		gluUnProject(x1, y1, z1,
+			model_view, projection, viewport,
+			&pos3D_x, &pos3D_y, &pos3D_z);
+
+		v[i] = glm::vec3(pos3D_x, pos3D_y, pos3D_z);
+	}
+
+	return v[1] - v[0];
+}
 
 btRigidBody* addSnowflake(float x, float y, float z)
 {
@@ -679,15 +715,16 @@ void mouseMoveEvent(int x, int y)
 
 	if (!alt)
 	{
-		//std::cout << dx << " : " << dy << std::endl;
-		float div = 2;//0.240/*.0*/;s
-		if (!ctrl){
-			globe.move(dx / div, -dy / div, 0);
-			updateSpawnLocation();
-		}
-		else 
-			globe.rotate(dx / div, -dy / div, 0);
-		
+		int viewport[4];
+		glGetIntegerv(GL_VIEWPORT, viewport);
+
+		glm::vec3 v = getVector(_mouseX, _mouseY, 0, x, y, 0);
+		v *= 5000;
+		if (!ctrl)
+			globe.move(v.x, -v.y, v.z);
+		else
+			globe.rotate(v.x, -v.y, v.z);
+
 		_mouseX = x;
 		_mouseY = y;
 	}
@@ -843,6 +880,7 @@ void handleKeyPress(unsigned char key, int x, int y)
 	case ' ':
 		cout << "Resetting" << endl; break;
 	case 'q':
+		glutDestroyWindow(windowID);
 		exit(0);
 	}
 }
@@ -1000,7 +1038,7 @@ int main(int argc, char **argv)
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);	//double buffer
 	glutInitWindowSize(width, height);
 	glutInitWindowPosition(0, 0);
-	glutCreateWindow("COMP477");
+	windowID = glutCreateWindow("477 - Snow globe");
 	glutDisplayFunc(display);
 	glutReshapeFunc(changeSize);
 	glutTimerFunc(10, timerFunction, 1);
