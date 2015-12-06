@@ -102,19 +102,14 @@
     <ClCompile Include="..\src\bullet-util\BulletUtility.cpp" />
     <ClCompile Include="..\src\glm.cpp" />
     <ClCompile Include="..\src\glMain.cpp" />
-    <ClCompile Include="..\src\glMainDeprecated.cpp" />
     <ClCompile Include="..\src\opengl-util\ShaderUtility.cpp" />
     <ClCompile Include="..\src\opengl-util\TextureUtility.cpp" />
     <ClCompile Include="..\src\present.cpp" />
-    <ClCompile Include="..\src\quaternion.cpp" />
     <ClCompile Include="..\src\RigidSnowflake.cpp" />
-    <ClCompile Include="..\src\simpleMath.cpp" />
-    <ClCompile Include="..\src\skeleton.cpp" />
     <ClCompile Include="..\src\SnowFlake.cpp" />
     <ClCompile Include="..\src\snowGlobe.cpp" />
     <ClCompile Include="..\src\SnowManager.cpp" />
     <ClCompile Include="..\src\splitstring.cpp" />
-    <ClCompile Include="..\src\World.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
