@@ -1,3 +1,13 @@
+/*
+*	Concordia University – Fall 2015 
+*   COMP 477 – Animation for Computer Games 
+*   Team Snowglobe
+*
+*   Anthony Moniz 26558259
+*   Sebouh Bardakjian 29640185
+*   Francis Hamelin-Owens 27067275
+*
+*/
 
 #include "SnowManager.h"
 
@@ -19,14 +29,9 @@
 #include <iostream>
 #include <cmath>
 #include <cstring>
-#include "skeleton.h"
-//#include "defMesh.h"
-
 #include "snowGlobe.h"
 #include "present.h"
-
 #include "TimeManager.h"
-
 #include <glm/gtc/type_ptr.hpp>
 
 using namespace std;
@@ -99,7 +104,7 @@ std::vector<btRigidBody*> bodies;
 std::vector<Present> presents;
 
 // Initial object spawn position
-Vec3 spawnLoc = Vec3(0, 5, 0.2);
+glm::vec3 spawnLoc = glm::vec3(0, 5, 0.2);
 
 glm::vec3 getVector(GLdouble x1, GLdouble y1, GLdouble z1, GLdouble x2, GLdouble y2, GLdouble z2)
 {
@@ -1063,7 +1068,7 @@ int main(int argc, char **argv)
 
 	for (int i = 0; i < 3; ++i)
 	{
-		Present pre(2, 0, 2, 1, 0.5);
+		Present pre(2, 0, 2, 20, 0.5);
 		pre.init(world);
 		pre.setBoxColor(i % 3 == 0 ? 1 : 0, i % 3 == 1 ? 1 : 0, i % 3 == 2 ? 1 : 0);
 		presents.push_back(pre);
