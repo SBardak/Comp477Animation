@@ -288,7 +288,15 @@ void SnowGlobe::glDraw()
 
 void SnowGlobe::move(float x, float y, float z)
 {
-	btVector3 direction(x, y, z);
+	GLdouble modelview[16];
+	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+	glm::mat4 viewMatrix = glm::make_mat4(modelview);
+	viewMatrix = glm::inverse(viewMatrix);
+
+	glm::vec4 dir(x, y, z, 0);
+	dir = viewMatrix * dir;
+
+	btVector3 direction(dir.x, dir.y, dir.z);
 
 	sphereBody->setActivationState(ACTIVE_TAG);
 	sphereBody->activate();

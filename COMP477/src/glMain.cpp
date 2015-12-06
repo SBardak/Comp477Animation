@@ -493,7 +493,7 @@ void mouseMoveEvent(int x, int y)
 		glm::vec3 v = getVector(_mouseX, _mouseY, 0, x, y, 0);
 		v *= 5000;
 		if (!ctrl){
-			globe.move(v.x, -v.y, v.z);
+			globe.move(dx / 2, -dy / 2, 0);
 			updateSpawnLocation();
 		}
 		else
