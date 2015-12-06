@@ -65,6 +65,9 @@ public:
 	void move(float x, float y, float z);
 	void rotate(float x, float y, float z);
 
+	btVector3 origin;
+	void setUpdatedOrigin(btVector3 &newOrigin);
+
 	void killvel() {
 		btVector3 z(0, 0, 0); sphereBody->setLinearVelocity(z); /*sphereBody2->setLinearVelocity(z);*/
 		sphereBody->setAngularVelocity(z);
