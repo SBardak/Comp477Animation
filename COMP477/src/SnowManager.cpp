@@ -60,11 +60,18 @@ btRigidBody* SnowManager::createSnowflake(float x, float y, float z)
 
 
 	btRigidBody* body = createRigidBody(mass, startTransform, snowShape);
-
-	body->setAngularFactor(btScalar(0.2f));
-	body->setDamping(btScalar(0.5f), btScalar(0.95));
+	body->setSleepingThresholds(0.2f, 0.2f);
+	body->setFriction(0.2f);
+	body->setAngularFactor(btScalar(0.1f));
+	body->setDamping(btScalar(0.75f), btScalar(0.95));
 	RigidSnowflake newSnowflake(body, snowflakeRadius * 2, snowflakeRadius * 2);
 	newSnowflake.setWindForce(btVector3(20.0f, 25.0f, 20.0f));
+
+	if (windOn)
+	{
+		newSnowflake.SetApplyWind(true);
+	}
+
 	snowflakes.push_back(newSnowflake);
 	return body;
 }

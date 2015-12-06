@@ -522,12 +522,8 @@ void physicsUpdate()
 	frameTime_curr = frameTimer.getCurrentTime();
 
 	double difference = frameTime_curr - frameTime_prev;
-	if (difference < 0)
-	{
-		int i = 2;
-	}
 
-	printf("frametime: %f \n", difference);
+	//printf("frametime: %f \n", difference);
 	//updateDynamicsWorld
 	float one = difference;// 1.0f / 60;
 	float	two = 30;
