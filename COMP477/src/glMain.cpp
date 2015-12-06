@@ -1086,6 +1086,19 @@ int main(int argc, char **argv)
 	globe.init(world);
 	snowmanager.init();
 
+	for (int i = 0; i < 10; i++)
+	{
+		for (int j = 0; j < 20; j++)
+		{
+			int zmod = j;
+			if (zmod < 10)
+			{
+				zmod = -(zmod % 10);
+			}
+			addSnowflake(spawnLoc.x + i*0.3, spawnLoc.y, spawnLoc.z + zmod*0.3);
+		}
+	}
+
 	glutMainLoop();
 
 	/*if (1000.0 / 60>SDL_GetTicks() - start)
