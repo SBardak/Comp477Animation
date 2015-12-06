@@ -911,7 +911,7 @@ void init(float angle)
 
 	// Setup Debug Drawer
 	debugDrawer = new GLBulletDebugDrawer();
-	debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawWireframe);
+	debugDrawer->setDebugMode(btIDebugDraw::DBG_NoDebug);
 	world->setDebugDrawer(debugDrawer);
 
 	//btTransform t;
