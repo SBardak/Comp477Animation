@@ -648,8 +648,6 @@ void handleKeyPress(unsigned char key, int x, int y)
 		debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe); break;
 	case 'm':
 		debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawWireframe); break;
-	case ' ':
-		cout << "Resetting" << endl; break;
 	case 'q':
 		glutDestroyWindow(windowID);
 		exit(0);
