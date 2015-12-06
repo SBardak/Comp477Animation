@@ -1,6 +1,7 @@
 #include "snowGlobe.h"
 #include <BulletCollision\Gimpact\btCompoundFromGimpact.h>
-
+#include <glm\glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
 void SnowGlobe::loadCollisionSphere()
@@ -133,7 +134,6 @@ void SnowGlobe::init(btDynamicsWorld *world)
 	info.m_angularDamping = 0.2;
 	info.m_restitution = 0.5;
 	sphereBody = new btRigidBody(info);
-
 	/* Add the body to the world */
 	world->addRigidBody(sphereBody, collisiontypes::COL_GLOBE, collisiontypes::COL_GLOBE);
 	/* Remove gravity */
@@ -297,7 +297,18 @@ void SnowGlobe::move(float x, float y, float z)
 
 void SnowGlobe::rotate(float x, float y, float z)
 {
-	btVector3 direction(y, -x, z);
+	GLdouble modelview[16];
+	GLdouble projection[16];
+	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+	glGetDoublev(GL_PROJECTION_MATRIX, projection);
+	glm::mat4 viewMatrix = glm::make_mat4(modelview);
+
+	glm::mat4 projectMatrix = glm::make_mat4(projection);
+	viewMatrix = glm::inverse(viewMatrix);
+	glm::vec4 dir(y, -x, z,0);
+	dir = viewMatrix * dir;
+
+	btVector3 direction(dir.x, dir.y, dir.z);
 	sphereBody->setAngularVelocity(direction);
 }
 
