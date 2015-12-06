@@ -157,227 +157,6 @@ btRigidBody* addSnowflake(float x, float y, float z)
 	return body;
 }
 
-btRigidBody* addSphere(float rad, float x, float y, float z, float mass)
-{
-	btTransform t;
-	t.setIdentity();
-	t.setOrigin(btVector3(x, y, z));
-	btSphereShape* sphere = new btSphereShape(rad);
-	btVector3 inertia(0, 0, 0);
-	if (mass != 0.0)
-		sphere->calculateLocalInertia(mass, inertia);
-
-	btMotionState* motion = new btDefaultMotionState(t);
-	btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere, inertia);
-
-	//http://stackoverflow.com/questions/8289653/bouncing-ball-in-bullet
-	info.m_friction = 0.5;
-	info.m_angularDamping = 0.2;
-	info.m_linearDamping = 0.5;
-	info.m_restitution = 0.3;
-	//
-
-
-	btRigidBody* body = new btRigidBody(info);
-	int all = collisiontypes::COL_GLOBE | collisiontypes::COL_PLANE;
-	world->addRigidBody(body, all, all);
-
-	body->setCcdMotionThreshold(0.5);
-	body->setCcdSweptSphereRadius(0.5);
-
-	bodies.push_back(body);
-	return body;
-}
-
-void renderSphere(btRigidBody* sphere)
-{
-	if (sphere->getCollisionShape()->getShapeType() != SPHERE_SHAPE_PROXYTYPE)
-		return;
-	glColor3f(1, 0, 0);
-	float r = ((btSphereShape*)sphere->getCollisionShape())->getRadius();
-	btTransform t;
-	sphere->getMotionState()->getWorldTransform(t);
-	float mat[16];
-	t.getOpenGLMatrix(mat);
-	glPushMatrix();
-	glMultMatrixf(mat);     //translation,rotation
-	gluSphere(quad, r, 20, 20);
-	glPopMatrix();
-}
-
-btRigidBody* addCylinder(float d, float h, float x, float y, float z, float mass)
-{
-	btTransform t;
-	t.setIdentity();
-	t.setOrigin(btVector3(x, y, z));
-	btCylinderShape* sphere = new btCylinderShape(btVector3(d / 2.0, h / 2.0, d / 2.0));
-	btVector3 inertia(0, 0, 0);
-	if (mass != 0.0)
-		sphere->calculateLocalInertia(mass, inertia);
-
-	btMotionState* motion = new btDefaultMotionState(t);
-	btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere, inertia);
-	btRigidBody* body = new btRigidBody(info);
-	int all = collisiontypes::COL_GLOBE | collisiontypes::COL_PLANE;
-	world->addRigidBody(body, all, all);
-	bodies.push_back(body);
-	return body;
-}
-
-void renderCylinder(btRigidBody* sphere)
-{
-	if (sphere->getCollisionShape()->getShapeType() != CYLINDER_SHAPE_PROXYTYPE)
-		return;
-	glColor3f(1, 0, 0);
-	btVector3 extent = ((btCylinderShape*)sphere->getCollisionShape())->getHalfExtentsWithoutMargin();
-	btTransform t;
-	sphere->getMotionState()->getWorldTransform(t);
-	float mat[16];
-	t.getOpenGLMatrix(mat);
-	glPushMatrix();
-	glMultMatrixf(mat);     //translation,rotation
-	glTranslatef(0, extent.y(), 0);
-	glRotatef(90, 1, 0, 0);
-	gluCylinder(quad, extent.x(), extent.x(), extent.y()*2.0, 20, 20);
-	glPopMatrix();
-}
-
-btRigidBody* addCone(float d, float h, float x, float y, float z, float mass)
-{
-	btTransform t;
-	t.setIdentity();
-	t.setOrigin(btVector3(x, y, z));
-	btConeShape* sphere = new btConeShape(d, h);
-	btVector3 inertia(0, 0, 0);
-	if (mass != 0.0)
-		sphere->calculateLocalInertia(mass, inertia);
-
-	btMotionState* motion = new btDefaultMotionState(t);
-	btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere, inertia);
-
-	info.m_friction = 0.5;
-	info.m_angularDamping = 0.2;
-	info.m_linearDamping = 0.5;
-	info.m_restitution = 0.3;
-
-	btRigidBody* body = new btRigidBody(info);
-	int all = collisiontypes::COL_GLOBE | collisiontypes::COL_PLANE;
-	world->addRigidBody(body, all, all);
-	bodies.push_back(body);
-	return body;
-}
-
-void renderCone(btRigidBody* sphere)
-{
-	if (sphere->getCollisionShape()->getShapeType() != CONE_SHAPE_PROXYTYPE)
-		return;
-	glColor3f(1, 0, 0);
-	float r = ((btConeShape*)sphere->getCollisionShape())->getRadius();
-	float h = ((btConeShape*)sphere->getCollisionShape())->getHeight();
-	btTransform t;
-	sphere->getMotionState()->getWorldTransform(t);
-	float mat[16];
-	t.getOpenGLMatrix(mat);
-	glPushMatrix();
-	glMultMatrixf(mat);     //translation,rotation
-	glTranslatef(0, h / 2.0, 0);
-	glRotatef(90, 1, 0, 0);
-	gluCylinder(quad, 0, r, h, 20, 20);
-	glPopMatrix();
-}
-
-btRigidBody* addBox(float width, float height, float depth, float x, float y, float z, float mass)
-{
-	btTransform t;
-	t.setIdentity();
-	t.setOrigin(btVector3(x, y, z));
-	btBoxShape* sphere = new btBoxShape(btVector3(width / 2.0, height / 2.0, depth / 2.0));
-	btVector3 inertia(0, 0, 0);
-	if (mass != 0.0)
-		sphere->calculateLocalInertia(mass, inertia);
-
-	btMotionState* motion = new btDefaultMotionState(t);
-	btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere, inertia);
-	btRigidBody* body = new btRigidBody(info);
-	int all = collisiontypes::COL_GLOBE | collisiontypes::COL_PLANE;
-
-	world->addRigidBody(body, all, all);
-	bodies.push_back(body);
-	return body;
-}
-
-void renderBox(btRigidBody* sphere)
-{
-	if (sphere->getCollisionShape()->getShapeType() != BOX_SHAPE_PROXYTYPE)
-		return;
-	glColor3f(1, 0, 0);
-	btVector3 extent = ((btBoxShape*)sphere->getCollisionShape())->getHalfExtentsWithoutMargin();
-	btTransform t;
-	sphere->getMotionState()->getWorldTransform(t);
-	float mat[16];
-	t.getOpenGLMatrix(mat);
-	glPushMatrix();
-	glMultMatrixf(mat);     //translation,rotation
-	glBegin(GL_QUADS);
-	glVertex3f(-extent.x(), extent.y(), -extent.z());
-	glVertex3f(-extent.x(), -extent.y(), -extent.z());
-	glVertex3f(-extent.x(), -extent.y(), extent.z());
-	glVertex3f(-extent.x(), extent.y(), extent.z());
-	glEnd();
-	glBegin(GL_QUADS);
-	glVertex3f(extent.x(), extent.y(), -extent.z());
-	glVertex3f(extent.x(), -extent.y(), -extent.z());
-	glVertex3f(extent.x(), -extent.y(), extent.z());
-	glVertex3f(extent.x(), extent.y(), extent.z());
-	glEnd();
-	glBegin(GL_QUADS);
-	glVertex3f(-extent.x(), extent.y(), extent.z());
-	glVertex3f(-extent.x(), -extent.y(), extent.z());
-	glVertex3f(extent.x(), -extent.y(), extent.z());
-	glVertex3f(extent.x(), extent.y(), extent.z());
-	glEnd();
-	glBegin(GL_QUADS);
-	glVertex3f(-extent.x(), extent.y(), -extent.z());
-	glVertex3f(-extent.x(), -extent.y(), -extent.z());
-	glVertex3f(extent.x(), -extent.y(), -extent.z());
-	glVertex3f(extent.x(), extent.y(), -extent.z());
-	glEnd();
-	glBegin(GL_QUADS);
-	glVertex3f(-extent.x(), extent.y(), -extent.z());
-	glVertex3f(-extent.x(), extent.y(), extent.z());
-	glVertex3f(extent.x(), extent.y(), extent.z());
-	glVertex3f(extent.x(), extent.y(), -extent.z());
-	glEnd();
-	glBegin(GL_QUADS);
-	glVertex3f(-extent.x(), -extent.y(), -extent.z());
-	glVertex3f(-extent.x(), -extent.y(), extent.z());
-	glVertex3f(extent.x(), -extent.y(), extent.z());
-	glVertex3f(extent.x(), -extent.y(), -extent.z());
-	glEnd();
-	glPopMatrix();
-}
-
-void renderPlane(btRigidBody* plane)
-{
-	if (plane->getCollisionShape()->getShapeType() != STATIC_PLANE_PROXYTYPE)
-		return;
-	glColor3f(0.8, 0, 0);
-	btTransform t;
-	plane->getMotionState()->getWorldTransform(t);
-	float mat[16];
-	t.getOpenGLMatrix(mat);
-	glPushMatrix();
-	glMultMatrixf(mat);     //translation,rotation
-	glBegin(GL_QUADS);
-		glVertex3f(-1000, 0, 1000);
-		glVertex3f(-1000, 0, -1000);
-		glVertex3f(1000, 0, -1000);
-		glVertex3f(1000, 0, 1000);
-	glEnd();
-	glPopMatrix();
-}
-
-
 double vlen(double x, double y, double z)
 {
 	return sqrt(x * x + y * y + z * z);
@@ -514,7 +293,7 @@ void pos(double *px, double *py, double *pz, const int x, const int y,
 
 btScalar mMaxSpeed = 15;
 void myTickCallback(btDynamicsWorld *world, btScalar timeStep, btRigidBody *body) {
-	// mShipBody is the spaceship's btRigidBody
+	// Limit velocities to max speed (max for better physics in the globe)
 	btVector3 velocity = body->getLinearVelocity();
 	btScalar speed = velocity.length();
 	if (speed > mMaxSpeed) {
@@ -585,22 +364,7 @@ void display()
 	glPushMatrix();													//draw terrain
 	glColor3f(0.3, 0.3, 0.3);
 
-	//drawSkybox(50);
-	for (int i = 0; i<bodies.size(); i++)
-	{
-		if (bodies[i]->getCollisionShape()->getShapeType() == STATIC_PLANE_PROXYTYPE)
-			renderPlane(bodies[i]);
-		else if (bodies[i]->getCollisionShape()->getShapeType() == SPHERE_SHAPE_PROXYTYPE && bodies[i]->getUserIndex() != dontDraw)
-			renderSphere(bodies[i]);
-		else if (bodies[i]->getCollisionShape()->getShapeType() == CYLINDER_SHAPE_PROXYTYPE)
-			renderCylinder(bodies[i]);
-		else if (bodies[i]->getCollisionShape()->getShapeType() == CONE_SHAPE_PROXYTYPE)
-			renderCone(bodies[i]);
-		else if (bodies[i]->getCollisionShape()->getShapeType() == BOX_SHAPE_PROXYTYPE)
-			renderBox(bodies[i]);
-	}
-	//btCollisionWorld::ClosestRayResultCallback rayCallback(rayFromWorld, rayToWorld);
-
+	/* Draw presents */
 	for (int i = 0; i < presents.size(); i++)
 		presents[i].glDraw();
 
@@ -837,9 +601,6 @@ void handleKeyPress(unsigned char key, int x, int y)
 	switch (key)
 	{
 		/* Frame movement */
-	case 'a':
-		addSphere(0.5, spawnLoc.x, spawnLoc.y, spawnLoc.z, 10.0);
-		break;
 	case 's':
 		for (int i = 0; i < 10; i++)
 		{
@@ -920,18 +681,6 @@ void init(float angle)
 	debugDrawer = new GLBulletDebugDrawer();
 	debugDrawer->setDebugMode(btIDebugDraw::DBG_NoDebug);
 	world->setDebugDrawer(debugDrawer);
-
-	//btTransform t;
-	//t.setIdentity();
-	//t.setOrigin(btVector3(0, 0, 0));
-	//btStaticPlaneShape* plane = new btStaticPlaneShape(btVector3(0, 1, 0), 0);
-	//btMotionState* motion = new btDefaultMotionState(t);
-	//btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, plane);
-	//btRigidBody* body = new btRigidBody(info);
-	//world->addRigidBody(body);
-	//bodies.push_back(body);
-
-	//addSphere(1.0, 0, 20, 0, 1.0);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -1062,11 +811,6 @@ int main(int argc, char **argv)
 
 	float angle = 50;
 	init(angle);
-	//addCylinder(2, 2, 0, 5, 0, 20);
-	//addCone(2, 2, 0, 5, 0, 20);
-	//addBox(2, 2, 3, 0, 5, 0, 20);
-
-	//addSphere(0.5, 0, 4, 0, 1.0);
 
 	for (int i = 0; i < 3; ++i)
 	{
@@ -1075,19 +819,6 @@ int main(int argc, char **argv)
 		pre.setBoxColor(i % 3 == 0 ? 1 : 0, i % 3 == 1 ? 1 : 0, i % 3 == 2 ? 1 : 0);
 		presents.push_back(pre);
 	}
-	//Present pre1(0, 0, 0, 1, 0.5);
-	//pre1.init(world);
-	//pre1.setBoxColor(1, 0, 0);
-	//presents.push_back(pre1);
-	//Present pre2(0, 1, 0, 1, 0.5);
-	//pre2.init(world);
-	//pre2.setBoxColor(0, 1, 0);
-	//presents.push_back(pre2);
-	//Present pre3(0, 2, 0, 1, 0.5);
-	//pre3.init(world);
-	//pre3.setBoxColor(1, 0, 1);
-	//presents.push_back(pre3);
-
 
 	initTime();
 	globe.init(world);
@@ -1108,16 +839,12 @@ int main(int argc, char **argv)
 
 	glutMainLoop();
 
-	/*if (1000.0 / 60>SDL_GetTicks() - start)
-		SDL_Delay(1000.0 / 60 - (SDL_GetTicks() - start));
-*/
-
+	/* Cleanup */
 	for (int i = 0; i < presents.size(); ++i)
 	{
 		presents[i].Delete();
 	}
 
-	//killskybox();
 	for (int i = 0; i<bodies.size(); i++)
 	{
 		world->removeCollisionObject(bodies[i]);
