@@ -225,6 +225,16 @@ void SnowGlobe::init(btDynamicsWorld *world)
 	//localTrans effectively shifts the center of mass with respect to the chassis
 	localTrans.setOrigin(btVector3(0, -6.5, 0));
 	compound->addChildShape(localTrans, box);
+
+	btBoxShape* house = new btBoxShape(btVector3(1.0f * m_scale, 0.5f * m_scale, 1.5f * m_scale));
+	localTrans.setIdentity();
+	//localTrans effectively shifts the center of mass with respect to the chassis
+	localTrans.setOrigin(btVector3(0, -6, 0));
+	compound->addChildShape(localTrans, house);
+}
+
+void SnowGlobe::setUpdatedOrigin(btVector3 &newOrigin){
+	origin = newOrigin;
 }
 
 void SnowGlobe::glDraw()
@@ -368,6 +378,62 @@ void SnowGlobe::glDraw()
 		//glEnd();
 		//glPopMatrix();
 	}
+
+	// Draw 2nd child -> House box
+	btVector3 extent = ((btBoxShape*)((btCompoundShape*)sphereBody->getCollisionShape())->getChildShape(2))->getHalfExtentsWithoutMargin();
+
+
+	glColor3f(0, 0, 1);
+	btTransform t;
+	sphereBody->getMotionState()->getWorldTransform(t);
+	setUpdatedOrigin(t.getOrigin());
+	float mat[16];
+	t.getOpenGLMatrix(mat);
+	glPushMatrix();
+	glMultMatrixf(mat);     //translation,rotation
+
+	t = ((btCompoundShape*)sphereBody->getCollisionShape())->getChildTransform(2);
+	t.getOpenGLMatrix(mat);
+	glMultMatrixf(mat);     //translation,rotation
+
+
+	glBegin(GL_QUADS);
+	glVertex3f(-extent.x(), extent.y(), -extent.z());
+	glVertex3f(-extent.x(), -extent.y(), -extent.z());
+	glVertex3f(-extent.x(), -extent.y(), extent.z());
+	glVertex3f(-extent.x(), extent.y(), extent.z());
+	glEnd();
+	glBegin(GL_QUADS);
+	glVertex3f(extent.x(), extent.y(), -extent.z());
+	glVertex3f(extent.x(), -extent.y(), -extent.z());
+	glVertex3f(extent.x(), -extent.y(), extent.z());
+	glVertex3f(extent.x(), extent.y(), extent.z());
+	glEnd();
+	glBegin(GL_QUADS);
+	glVertex3f(-extent.x(), extent.y(), extent.z());
+	glVertex3f(-extent.x(), -extent.y(), extent.z());
+	glVertex3f(extent.x(), -extent.y(), extent.z());
+	glVertex3f(extent.x(), extent.y(), extent.z());
+	glEnd();
+	glBegin(GL_QUADS);
+	glVertex3f(-extent.x(), extent.y(), -extent.z());
+	glVertex3f(-extent.x(), -extent.y(), -extent.z());
+	glVertex3f(extent.x(), -extent.y(), -extent.z());
+	glVertex3f(extent.x(), extent.y(), -extent.z());
+	glEnd();
+	glBegin(GL_QUADS);
+	glVertex3f(-extent.x(), extent.y(), -extent.z());
+	glVertex3f(-extent.x(), extent.y(), extent.z());
+	glVertex3f(extent.x(), extent.y(), extent.z());
+	glVertex3f(extent.x(), extent.y(), -extent.z());
+	glEnd();
+	glBegin(GL_QUADS);
+	glVertex3f(-extent.x(), -extent.y(), -extent.z());
+	glVertex3f(-extent.x(), -extent.y(), extent.z());
+	glVertex3f(extent.x(), -extent.y(), extent.z());
+	glVertex3f(extent.x(), -extent.y(), -extent.z());
+	glEnd();
+	glPopMatrix();
 }
 
 void SnowGlobe::move(float x, float y, float z)

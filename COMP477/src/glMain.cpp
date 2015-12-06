@@ -1,5 +1,4 @@
 
-
 #include "SnowManager.h"
 
 #pragma managed(push, off)
@@ -87,6 +86,9 @@ GLBulletDebugDrawer* debugDrawer;
 //Bullet managing stuff
 std::vector<btRigidBody*> bodies;
 
+// Initial object spawn position
+Vec3 spawnLoc = Vec3(0, 5, 0.2);
+
 btRigidBody* addSnowflake(float x, float y, float z)
 {
 	btRigidBody* body = snowmanager.createSnowflake(x, y, z);
@@ -161,7 +163,8 @@ btRigidBody* addCylinder(float d, float h, float x, float y, float z, float mass
 	btMotionState* motion = new btDefaultMotionState(t);
 	btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere, inertia);
 	btRigidBody* body = new btRigidBody(info);
-	world->addRigidBody(body);
+	int all = collisiontypes::COL_GLOBE | collisiontypes::COL_PLANE;
+	world->addRigidBody(body, all, all);
 	bodies.push_back(body);
 	return body;
 }
@@ -196,8 +199,15 @@ btRigidBody* addCone(float d, float h, float x, float y, float z, float mass)
 
 	btMotionState* motion = new btDefaultMotionState(t);
 	btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere, inertia);
+
+	info.m_friction = 0.5;
+	info.m_angularDamping = 0.2;
+	info.m_linearDamping = 0.5;
+	info.m_restitution = 0.3;
+
 	btRigidBody* body = new btRigidBody(info);
-	world->addRigidBody(body);
+	int all = collisiontypes::COL_GLOBE | collisiontypes::COL_PLANE;
+	world->addRigidBody(body, all, all);
 	bodies.push_back(body);
 	return body;
 }
@@ -234,7 +244,9 @@ btRigidBody* addBox(float width, float height, float depth, float x, float y, fl
 	btMotionState* motion = new btDefaultMotionState(t);
 	btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere, inertia);
 	btRigidBody* body = new btRigidBody(info);
-	world->addRigidBody(body);
+	int all = collisiontypes::COL_GLOBE | collisiontypes::COL_PLANE;
+
+	world->addRigidBody(body, all, all);
 	bodies.push_back(body);
 	return body;
 }
@@ -514,12 +526,12 @@ void display()
 			renderPlane(bodies[i]);
 		else if (bodies[i]->getCollisionShape()->getShapeType() == SPHERE_SHAPE_PROXYTYPE && bodies[i]->getUserIndex() != dontDraw)
 			renderSphere(bodies[i]);
-		//else if (bodies[i]->getCollisionShape()->getShapeType() == CYLINDER_SHAPE_PROXYTYPE)
-		//	renderCylinder(bodies[i]);
-		//else if (bodies[i]->getCollisionShape()->getShapeType() == CONE_SHAPE_PROXYTYPE)
-		//	renderCone(bodies[i]);
-		//else if (bodies[i]->getCollisionShape()->getShapeType() == BOX_SHAPE_PROXYTYPE)
-		//	renderBox(bodies[i]);
+		else if (bodies[i]->getCollisionShape()->getShapeType() == CYLINDER_SHAPE_PROXYTYPE)
+			renderCylinder(bodies[i]);
+		else if (bodies[i]->getCollisionShape()->getShapeType() == CONE_SHAPE_PROXYTYPE)
+			renderCone(bodies[i]);
+		else if (bodies[i]->getCollisionShape()->getShapeType() == BOX_SHAPE_PROXYTYPE)
+			renderBox(bodies[i]);
 	}
 	//btCollisionWorld::ClosestRayResultCallback rayCallback(rayFromWorld, rayToWorld);
 
@@ -620,6 +632,12 @@ void mouseEvent(int button, int state, int x, int y)
 	pos(&_dragPosX, &_dragPosY, &_dragPosZ, x, y, viewport);
 }
 
+void updateSpawnLocation(){
+	spawnLoc.x = (double)globe.origin.getX();
+	spawnLoc.y = (double)globe.origin.getY();
+	spawnLoc.z = (double)globe.origin.getZ();
+}	
+
 void mouseMoveEvent(int x, int y)
 {
 	//std::cout << "move" << std::endl;
@@ -632,8 +650,10 @@ void mouseMoveEvent(int x, int y)
 	{
 		//std::cout << dx << " : " << dy << std::endl;
 		float div = 2;//0.240/*.0*/;s
-		if (!ctrl)
+		if (!ctrl){
 			globe.move(dx / div, -dy / div, 0);
+			updateSpawnLocation();
+		}
 		else 
 			globe.rotate(dx / div, -dy / div, 0);
 		
@@ -649,13 +669,26 @@ void mouseMoveEvent(int x, int y)
 			return;
 
 		if (_mouseMiddle || (_mouseLeft && _mouseRight)) {
-			/* double s = exp((double)dy*0.01); */
-			/* glScalef(s,s,s); */
-			/* if(abs(prev_z) <= 1.0) */
+			///* double s = exp((double)dy*0.01); */
+			///* glScalef(s,s,s); */
+			///* if(abs(prev_z) <= 1.0) */
+
+			//glLoadIdentity();
+			//glTranslatef(0, 0, dy * 0.1);
+			//glMultMatrixd(_matrix);
+
+			//changed = true;
+			double px, py, pz;
+
+			pos(&px, &py, &pz, x, y, viewport);
 
 			glLoadIdentity();
-			glTranslatef(0, 0, dy * 0.1);
+			glTranslatef(px - _dragPosX, py - _dragPosY, pz - _dragPosZ);
 			glMultMatrixd(_matrix);
+
+			_dragPosX = px;
+			_dragPosY = py;
+			_dragPosZ = pz;
 
 			changed = true;
 		}
@@ -685,17 +718,27 @@ void mouseMoveEvent(int x, int y)
 			changed = true;
 		}
 		else if (_mouseRight) {
-			double px, py, pz;
+			double ax, ay, az;
+			double bx, by, bz;
+			double angle;
 
-			pos(&px, &py, &pz, x, y, viewport);
+			ax = dy;
+			ay = 0.0;
+			az = 0.0;
+			angle = vlen(ax, ay, az) / (double)(viewport[2] + 1) * 180.0;
 
-			glLoadIdentity();
-			glTranslatef(px - _dragPosX, py - _dragPosY, pz - _dragPosZ);
-			glMultMatrixd(_matrix);
+			/* Use inverse matrix to determine local axis of rotation */
 
-			_dragPosX = px;
-			_dragPosY = py;
-			_dragPosZ = pz;
+			bx = _matrixI[0] * ax + _matrixI[4] * ay + _matrixI[8] * az;
+			by = _matrixI[1] * ax + _matrixI[5] * ay + _matrixI[9] * az;
+			bz = _matrixI[2] * ax + _matrixI[6] * ay + _matrixI[10] * az;
+
+			//glRotatef(angle, bx, by, bz);
+			if (dy > 0)
+				glRotatef(angle, 1, 0, 0);
+			else
+				glRotatef(angle, -1, 0, 0);
+
 
 			changed = true;
 		}
@@ -717,10 +760,10 @@ void handleKeyPress(unsigned char key, int x, int y)
 	{
 		/* Frame movement */
 	case 'a':
-		addSphere(0.5, 0, 5, 0.2, 10.0);
+		addSphere(0.5, spawnLoc.x, spawnLoc.y, spawnLoc.z, 10.0);
 		break;
 	case 's':
-		addSnowflake(0.0f, 5.0f, 0.2f);
+		addSnowflake(spawnLoc.x, spawnLoc.y, spawnLoc.z);
 		break;
 	case 'w':
 		snowmanager.SetApplyWind(!snowmanager.IsWindOn());
@@ -742,9 +785,11 @@ void handleKeyPress(unsigned char key, int x, int y)
 	//	break;
 	case '+':
 		globe.move(0, 1, 0);
+		updateSpawnLocation();
 		break;
 	case '-':
 		globe.move(0, -1, 0);
+		updateSpawnLocation();
 		break;
 	//case '-':
 	//	planeBody->getMotionState()->getWorldTransform(t);
@@ -761,6 +806,8 @@ void handleKeyPress(unsigned char key, int x, int y)
 		debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe); break;
 	case 'm':
 		debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawWireframe); break;
+	case ' ':
+		cout << "Resetting" << endl; break;
 	case 'q':
 		exit(0);
 	}
@@ -834,7 +881,7 @@ void init(float angle)
 	// Set material properties to follow glColor values
 	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
-	glClearColor(0.2f, 0.2f, 0.2f, 3.0f);
+	glClearColor(0.1f, 0.1f, 0.1f, 3.0f);
 
 	//Rescale normals to unit length
 	glEnable(GL_NORMALIZE);
@@ -879,10 +926,29 @@ void specialFunc(int key, int x, int y)
 	{
 		ctrl = true;
 	}
+
+	switch (key)
+	{
+	case GLUT_KEY_UP:
+		cout << "Key up" << endl;
+		globe.rotate(0, 5, 0);
+		break;
+	case GLUT_KEY_DOWN:
+		cout << "Key down" << endl;
+		globe.rotate(0, -5, 0);
+		break;
+	case GLUT_KEY_LEFT:
+		cout << "Key left" << endl;
+		globe.rotate(5, 0, 0);
+		break;
+	case GLUT_KEY_RIGHT:
+		cout << "Key right" << endl;
+		globe.rotate(-5, 0, 0);
+		break;
+	}
 }
 void specialFuncUp(int key, int x, int y)
 {
-	std::cout << 1 << std::endl;
 	if (key == 116)
 	{
 		alt = false;
@@ -914,9 +980,9 @@ int main(int argc, char **argv)
 
 	float angle = 50;
 	init(angle);
-	//addCylinder(2, 5, 0, 30, 0, 1.0);
-	//addCone(2, 5, 5, 30, 0, 1.0);
-	//addBox(10, 2, 3, 0, 40, 0, 1.0);
+	addCylinder(2, 2, 0, 5, 0, 10);
+	addCone(2, 2, 0, 5, 0, 10);
+	addBox(2, 2, 3, 0, 5, 0, 10);
 
 	addSphere(0.5, 0, 4, 0, 1.0);
 
