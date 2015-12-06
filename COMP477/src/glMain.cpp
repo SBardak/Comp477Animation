@@ -1,6 +1,6 @@
 /*
-*	Concordia University – Fall 2015 
-*   COMP 477 – Animation for Computer Games 
+*	Concordia University Fall 2015 
+*   COMP 477 Animation for Computer Games 
 *   Team Snowglobe
 *
 *   Anthony Moniz 26558259
@@ -148,6 +148,8 @@ btRigidBody* addSnowflake(float x, float y, float z)
 	int all = collisiontypes::COL_GLOBE | collisiontypes::COL_PLANE;
 	world->addRigidBody(body, all, all);
 
+	btVector3 h(0.3, 0.3, 0.3);
+	body->setLinearFactor(h);
 	body->setCcdMotionThreshold(0.5);
 	body->setCcdSweptSphereRadius(0.5);
 	body->setUserIndex(dontDraw);
@@ -543,9 +545,9 @@ void physicsUpdate()
 
 	int numManifolds = world->getDispatcher()->getNumManifolds();
 
-	for each (btRigidBody* bod in bodies)
+	for each (Present bod in presents)
 	{
-		myTickCallback(world, three, bod);
+		myTickCallback(world, three, bod.body);
 	}
 
 	for (int i = 0; i < numManifolds; i++)

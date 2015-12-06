@@ -24,7 +24,6 @@ private:
 
 	/* Bullet */
 	btDynamicsWorld *world;
-	btRigidBody *body;
 	//btRigidBody *sphereBody2;
 
 	/* Loading */
@@ -32,6 +31,7 @@ private:
 
 	void setMaterialColor(int mat, float r, float g, float b);
 public:
+	btRigidBody *body;
 	Present(float x, float y, float z, float mass, float scale);
 	~Present();
 	void Delete();
