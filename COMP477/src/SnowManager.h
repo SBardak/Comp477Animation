@@ -42,6 +42,7 @@ public:
 		{
 			(*it).SetApplyWind(on);
 		}
+		printf("Wind is %s", on ? "on" : "off");
 	}
 
 	void SetWindForce(const btVector3 &windForce)
