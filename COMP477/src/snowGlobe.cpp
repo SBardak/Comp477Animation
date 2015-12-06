@@ -169,6 +169,7 @@ void SnowGlobe::init(btDynamicsWorld *world)
 	//localTrans effectively shifts the center of mass with respect to the chassis
 	localTrans.setOrigin(btVector3(0, -5.5, 0));
 	compound->addChildShape(localTrans, treeBase);
+
 }
 
 void SnowGlobe::setUpdatedOrigin(btVector3 &newOrigin){
@@ -192,6 +193,7 @@ void SnowGlobe::glDraw()
 
 		btTransform t;
 		sphereBody->getMotionState()->getWorldTransform(t);
+		setUpdatedOrigin(t.getOrigin());
 		float mat[16];
 		t.getOpenGLMatrix(mat);
 
@@ -288,11 +290,10 @@ void SnowGlobe::move(float x, float y, float z)
 {
 	btVector3 direction(x, y, z);
 
-	btTransform t;
-	
 	sphereBody->setActivationState(ACTIVE_TAG);
 	sphereBody->activate();
 	sphereBody->setLinearVelocity(direction);
+
 }
 
 void SnowGlobe::rotate(float x, float y, float z)
