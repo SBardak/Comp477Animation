@@ -68,11 +68,3 @@ void Snowflake::CleanUp()
 	glDeleteTextures(1, &Texture);
 	glDeleteVertexArrays(1, &vertexArrayID);
 }
-
-/*
-//Build physics object
-btCollisionShape * shape = new btSphereShape(0.2f);
-createRigidbody(shape);
-mBody->setAngularFactor(btScalar(0.2f));
-mBody->setDamping(mBody->getLinearDamping(), btScalar(0.9));
-*/

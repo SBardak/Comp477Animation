@@ -27,7 +27,6 @@ void RigidSnowflake::Update(float dt)
 		float cosAngle = cosf(angle);
 		float sinAngle = sinf(angle);
 		currWindForce = btVector3(cosAngle, 0.0, -sinAngle) * windForce;
-		//btVector3 crossProd = btCross(currWindForce, -gravityForce.normalized());
 		btVector3 force = btVector3(0.0, abs(sinAngle) * windForce.y(), 0.0f) + currWindForce;
 
 		force += gravityForce;

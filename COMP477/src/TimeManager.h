@@ -1,16 +1,15 @@
 #ifndef TIME_MANAGER_H
 #define TIME_MANAGER_H
 #include <sys\timeb.h> 
+#include <Windows.h>
 
 /*
-	TODO: Doesnt work, sometimes updated time is less than last time??
 	Utility class to keep track of system time 
 */
 class TimeManager
 {
 private:
-	timeb currentTime;
-	float sCurrentTime; //current time in seconds
+	double sCurrentTime; //current time in seconds
 public:
 	TimeManager()
 	{
@@ -19,20 +18,20 @@ public:
 
 	void update()
 	{
-		ftime(&currentTime);
-		sCurrentTime = ((currentTime.time / 1000.0) + currentTime.millitm) / 1000.0;
+		sCurrentTime = GetTickCount();
+
+		sCurrentTime /= 1000.0f;
+		int i = 0;
 	}
 
-	float getCurrentTime()
+	double getCurrentTime()
 	{
 		return sCurrentTime;
 	}
 
 	static float getCurrentSystemTime()
 	{
-		timeb currSysTime;
-		ftime(&currSysTime);
-		return ((currSysTime.time / 1000.0) + currSysTime.millitm) / 1000.0;
+		return (double)GetTickCount() / 1000;
 	}
 
 };

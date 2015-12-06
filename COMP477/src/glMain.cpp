@@ -25,6 +25,8 @@
 
 #include "snowGlobe.h"
 
+#include "TimeManager.h"
+
 #include <glm/gtc/type_ptr.hpp>
 
 using namespace std;
@@ -70,6 +72,12 @@ bool _mouseRight = false;
 double _dragPosX = 0.0;
 double _dragPosY = 0.0;
 double _dragPosZ = 0.0;
+
+//Frame timer stuff
+//Frame timer
+TimeManager frameTimer;
+double frameTime_prev;
+double frameTime_curr;
 
 // Snow stuff
 SnowManager snowmanager;
@@ -456,14 +464,27 @@ void myTickCallback(btDynamicsWorld *world, btScalar timeStep, btRigidBody *body
 	}
 }
 
-void display()
-{	
-	float one = 1.0f / 60,
-		two = 10,
-		three = 1.0f / 600;
+void physicsUpdate()
+{
+	frameTimer.update();
+	frameTime_curr = frameTimer.getCurrentTime();
+
+	double difference = frameTime_curr - frameTime_prev;
+	if (difference < 0)
+	{
+		int i = 2;
+	}
+
+	printf("frametime: %f \n", difference);
+	//updateDynamicsWorld
+	float one = difference;// 1.0f / 60;
+	float	two = 30;
+	float	three = 1.0f / 600;
+
 	snowmanager.Update(one);
 	world->stepSimulation(one, two, three);
-	//world->stepSimulation(one);
+
+	frameTime_prev = frameTime_curr;
 
 	globe.killvel();
 
@@ -494,9 +515,11 @@ void display()
 			}
 		}
 	}
+}
 
-
-
+void display()
+{	
+	//physicsUpdate();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
@@ -561,9 +584,17 @@ void changeSize(int w, int h)
 	glMatrixMode(GL_MODELVIEW);
 }
 
+void initTime()
+{
+	frameTimer.update();
+	frameTime_curr = frameTimer.getCurrentTime();
+	frameTime_prev = frameTime_curr;
+}
+
 void timerFunction(int value)
 {
 	glutTimerFunc(10, timerFunction, 1);
+	physicsUpdate();
 	glutPostRedisplay();
 }
 
@@ -919,7 +950,7 @@ int main(int argc, char **argv)
 	//addBox(10, 2, 3, 0, 40, 0, 1.0);
 
 	addSphere(0.5, 0, 4, 0, 1.0);
-
+	initTime();
 	globe.init(world);
 	snowmanager.init();
 
