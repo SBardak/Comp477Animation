@@ -84,6 +84,9 @@
     <ClInclude Include="..\src\TimeManager.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\present.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\simpleMath.cpp">
@@ -129,6 +132,9 @@
       <Filter>Resource Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\World.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\present.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -86,6 +86,7 @@
     <ClInclude Include="..\src\GL\glut.h" />
     <ClInclude Include="..\src\opengl-util\ShaderUtility.h" />
     <ClInclude Include="..\src\opengl-util\TextureUtility.h" />
+    <ClInclude Include="..\src\present.h" />
     <ClInclude Include="..\src\quaternion.h" />
     <ClInclude Include="..\src\RigidSnowflake.h" />
     <ClInclude Include="..\src\simpleMath.h" />
@@ -104,6 +105,7 @@
     <ClCompile Include="..\src\glMainDeprecated.cpp" />
     <ClCompile Include="..\src\opengl-util\ShaderUtility.cpp" />
     <ClCompile Include="..\src\opengl-util\TextureUtility.cpp" />
+    <ClCompile Include="..\src\present.cpp" />
     <ClCompile Include="..\src\quaternion.cpp" />
     <ClCompile Include="..\src\RigidSnowflake.cpp" />
     <ClCompile Include="..\src\simpleMath.cpp" />
