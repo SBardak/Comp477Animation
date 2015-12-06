@@ -23,6 +23,7 @@
 //#include "defMesh.h"
 
 #include "snowGlobe.h"
+#include "present.h"
 
 #include "TimeManager.h"
 
@@ -93,6 +94,9 @@ GLBulletDebugDrawer* debugDrawer;
 
 //Bullet managing stuff
 std::vector<btRigidBody*> bodies;
+
+//Presents
+std::vector<Present> presents;
 
 // Initial object spawn position
 Vec3 spawnLoc = Vec3(0, 5, 0.2);
@@ -594,6 +598,9 @@ void display()
 	}
 	//btCollisionWorld::ClosestRayResultCallback rayCallback(rayFromWorld, rayToWorld);
 
+	for (int i = 0; i < presents.size(); i++)
+		presents[i].glDraw();
+
 	// Draw snowflakes
 	GLdouble modelview[16];
 	GLdouble projection[16];
@@ -1052,11 +1059,33 @@ int main(int argc, char **argv)
 
 	float angle = 50;
 	init(angle);
-	addCylinder(2, 2, 0, 5, 0, 20);
-	addCone(2, 2, 0, 5, 0, 20);
-	addBox(2, 2, 3, 0, 5, 0, 20);
+	//addCylinder(2, 2, 0, 5, 0, 20);
+	//addCone(2, 2, 0, 5, 0, 20);
+	//addBox(2, 2, 3, 0, 5, 0, 20);
 
-	addSphere(0.5, 0, 4, 0, 1.0);
+	//addSphere(0.5, 0, 4, 0, 1.0);
+
+	for (int i = 0; i < 3; ++i)
+	{
+		Present pre(0, 0, 0, 1, 0.5);
+		pre.init(world);
+		pre.setBoxColor(i % 3 == 0 ? 1 : 0, i % 3 == 1 ? 1 : 0, i % 3 == 2 ? 1 : 0);
+		presents.push_back(pre);
+	}
+	//Present pre1(0, 0, 0, 1, 0.5);
+	//pre1.init(world);
+	//pre1.setBoxColor(1, 0, 0);
+	//presents.push_back(pre1);
+	//Present pre2(0, 1, 0, 1, 0.5);
+	//pre2.init(world);
+	//pre2.setBoxColor(0, 1, 0);
+	//presents.push_back(pre2);
+	//Present pre3(0, 2, 0, 1, 0.5);
+	//pre3.init(world);
+	//pre3.setBoxColor(1, 0, 1);
+	//presents.push_back(pre3);
+
+
 	initTime();
 	globe.init(world);
 	snowmanager.init();
@@ -1066,6 +1095,11 @@ int main(int argc, char **argv)
 	/*if (1000.0 / 60>SDL_GetTicks() - start)
 		SDL_Delay(1000.0 / 60 - (SDL_GetTicks() - start));
 */
+
+	for (int i = 0; i < presents.size(); ++i)
+	{
+		presents[i].Delete();
+	}
 
 	//killskybox();
 	for (int i = 0; i<bodies.size(); i++)

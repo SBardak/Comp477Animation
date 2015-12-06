@@ -1,5 +1,5 @@
 /*
-* Quaternion
+* Snow Globe
 */
 #ifndef SNOWGLOBE_H
 #define SNOWGLOBE_H
