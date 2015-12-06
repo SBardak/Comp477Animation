@@ -497,7 +497,7 @@ void mouseMoveEvent(int x, int y)
 			updateSpawnLocation();
 		}
 		else
-			globe.rotate(v.x, -v.y, v.z);
+			globe.rotate(dx / 2, -dy / 2, 0);
 
 		_mouseX = x;
 		_mouseY = y;
