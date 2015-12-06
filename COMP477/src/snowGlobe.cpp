@@ -153,7 +153,7 @@ void SnowGlobe::init(btDynamicsWorld *world)
 	btBoxShape* box = new btBoxShape(btVector3(10 / 2.0 * m_scale, 0.5f, 10 / 2.0 * m_scale));
 	localTrans.setIdentity();
 	//localTrans effectively shifts the center of mass with respect to the chassis
-	localTrans.setOrigin(btVector3(0, -6.5, 0));
+	localTrans.setOrigin(btVector3(0, -6.78, 0));
 	compound->addChildShape(localTrans, box);
 
 	/* Add the globe's tree */
