@@ -1,12 +1,10 @@
 Input:
 s : Spawn 10 snowflakes in the center of the globe.
 w : Toggle wind on and off. 
-a : Spawn one ball
 
 h : Toggle collision sphere
 g : Toggle globe
 f : Toggle collision plane
-
 
 Debugging options (Choose one)
 --------------------------------------
@@ -18,7 +16,6 @@ m : Draw aabb & wireframe
 
 + : Move the globe up in space
 - : Move the globe down in space
-
 
 Scroll wheel : Zoom in and out
 CTRL + Left mouse button : Rotate the globe
