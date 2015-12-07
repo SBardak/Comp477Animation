@@ -1,0 +1,18 @@
+newmtl Preview
+Ns 50
+Ka 0 0 0
+Kd 0.492782 0.587451 0.939207
+Ks 0.036256 0.0898709 0.100668
+d 1
+newmtl material01
+Ns 25
+Ka 0 0 0
+Kd 0.27451 0.0901961 0
+Ks 1 1 1
+d 1
+newmtl ___default___
+Ns 7.61446
+Ka 0 0 0
+Kd 0.878 0.878 0.878
+Ks 1 1 1
+d 0.1
